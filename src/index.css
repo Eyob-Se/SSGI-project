@@ -1,0 +1,48 @@
+@import "tailwindcss";
+/* index.css */
+
+:root {
+  --color-primary: #df974dff;
+  --color-secondary: #1b5674ff;
+  --color-tertiary: #e91c30ff;
+}
+html, body, #root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  .content {
+  position: relative;
+  z-index: 1;
+  color: white;
+  padding: 2rem;
+  pointer-events: none; /* Let mouse events pass through */
+}
+
+.content * {
+  pointer-events: auto; /* Re-enable for children */
+}
+
+
+/* Ensure root and body take full height */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Style to ensure content is above map */
+.map-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+}
+
+.foreground-content {
+  position: relative;
+  z-index: 1;
+}
