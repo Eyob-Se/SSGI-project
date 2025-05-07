@@ -5,9 +5,10 @@ import OLMap from './component/OLMap.jsx'
 const App = () => {
   return (
     <>
+    
     <Navbar / >
-    <OLMap/>
     <Hero / >
+    <OLMap/>
     
     </>
   )

@@ -120,8 +120,20 @@ const OLMap = () => {
     <div
       ref={mapRef}
       style={{
-        width: '100%',
-        height: '100%',
+        marginLeft: '200px',
+        marginTop: '40px',
+        width: '50%',
+        height: '75%',
+        borderRadius: '20px',
+    overflow: 'hidden',
+    WebkitMaskImage:
+      'radial-gradient(ellipse at center, black 70%, transparent 100%)',
+    maskImage:
+      'radial-gradient(ellipse at center, black 70%, transparent 100%)',
+    WebkitMaskRepeat: 'no-repeat',
+    maskRepeat: 'no-repeat',
+    WebkitMaskSize: 'cover',
+    maskSize: 'cover',
       }}
     />
   );
