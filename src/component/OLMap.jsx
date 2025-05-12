@@ -1,16 +1,16 @@
-import { useRef, useEffect } from 'react';
-import 'ol/ol.css';
-import Map from 'ol/Map';
-import View from 'ol/View';
-import TileLayer from 'ol/layer/Tile';
-import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
-import OSM from 'ol/source/OSM';
-import GeoJSON from 'ol/format/GeoJSON';
-import { Fill, Stroke, Style, Icon, Text } from 'ol/style';
-import { fromLonLat } from 'ol/proj';
-import Point from 'ol/geom/Point';
-import Feature from 'ol/Feature';
+import { useRef, useEffect } from "react";
+import "ol/ol.css";
+import Map from "ol/Map";
+import View from "ol/View";
+import TileLayer from "ol/layer/Tile";
+import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
+import OSM from "ol/source/OSM";
+import GeoJSON from "ol/format/GeoJSON";
+import { Fill, Stroke, Style, Icon, Text } from "ol/style";
+import { fromLonLat } from "ol/proj";
+import Point from "ol/geom/Point";
+import Feature from "ol/Feature";
 
 const OLMap = () => {
   const mapRef = useRef(null);
@@ -23,22 +23,22 @@ const OLMap = () => {
     // === Marker Feature ===
     const markerFeature = new Feature({
       geometry: new Point(ethiopiaCoords),
-      name: 'Ethiopia Marker',
+      name: "Ethiopia Marker",
     });
 
     const createMarkerStyle = (showText = true) =>
       new Style({
         image: new Icon({
           anchor: [0.5, 1],
-          src: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+          src: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
           scale: 0.05,
         }),
         text: showText
           ? new Text({
-              text: 'Discover Ethiopia Like Never Before!',
-              font: 'bold 16px Arial',
-              fill: new Fill({ color: '#1b5e20' }),
-              stroke: new Stroke({ color: '#ffffff', width: 2 }),
+              text: "Discover Ethiopia Like Never Before!",
+              font: "bold 16px Arial",
+              fill: new Fill({ color: "#1b5e20" }),
+              stroke: new Stroke({ color: "#ffffff", width: 2 }),
               offsetY: -35,
             })
           : null,
@@ -55,7 +55,7 @@ const OLMap = () => {
 
     // === Ethiopia GeoJSON Layer ===
     const ethiopiaSource = new VectorSource({
-      url: '/eth_boundary.geojson', // Place in public/ folder
+      url: "/eth_boundary.geojson", // Place in public/ folder
       format: new GeoJSON(),
     });
 
@@ -65,10 +65,10 @@ const OLMap = () => {
         const zoom = mapRefInstance.current?.getView().getZoom() || 0;
         return new Style({
           fill: new Fill({
-            color: zoom >= 8 ? 'rgba(0,0,0,0)' : 'rgba(170, 185, 170, 0.3)',
+            color: zoom >= 8 ? "rgba(0,0,0,0)" : "rgba(170, 185, 170, 0.3)",
           }),
           stroke: new Stroke({
-            color: '#006400',
+            color: "#006400",
             width: 2,
           }),
         });
@@ -92,12 +92,12 @@ const OLMap = () => {
     mapRefInstance.current = map;
 
     // === Refresh style on zoom to fade fill ===
-    map.getView().on('change:resolution', () => {
+    map.getView().on("change:resolution", () => {
       ethiopiaLayer.setStyle(ethiopiaLayer.getStyle());
     });
 
     // === Click Marker to Zoom and Fade Text ===
-    map.on('singleclick', (evt) => {
+    map.on("singleclick", (evt) => {
       map.forEachFeatureAtPixel(evt.pixel, (feature) => {
         if (feature === markerFeatureRef.current) {
           map.getView().animate({
@@ -119,22 +119,7 @@ const OLMap = () => {
   return (
     <div
       ref={mapRef}
-      style={{
-        marginLeft: '200px',
-        marginTop: '40px',
-        width: '50%',
-        height: '75%',
-        borderRadius: '20px',
-    overflow: 'hidden',
-    WebkitMaskImage:
-      'radial-gradient(ellipse at center, black 70%, transparent 100%)',
-    maskImage:
-      'radial-gradient(ellipse at center, black 70%, transparent 100%)',
-    WebkitMaskRepeat: 'no-repeat',
-    maskRepeat: 'no-repeat',
-    WebkitMaskSize: 'cover',
-    maskSize: 'cover',
-      }}
+      className="w-full h-[60vh] min-h-[300px] rounded-2xl overflow-hidden mx-[10rem]  mask-radial"
     />
   );
 };
