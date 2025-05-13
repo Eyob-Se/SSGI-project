@@ -5,7 +5,7 @@ const Navbar = () => {
   return (
     <>
       <nav>
-        <div className="container mx-[10rem] my-[2rem] flex justify-between items-center py-4 ">
+        <div className="container mx-[10rem] my-[0rem] flex justify-between items-center pt-[2rem] ">
           <img className="h-[4.5rem] w-auto" src={ssgi} alt="" srcset="" />
           <ul className="flex font-[poppins] space-x-10 py-2 px-20 text-[1.2rem] ">
             <li>

@@ -119,7 +119,7 @@ const OLMap = () => {
   return (
     <div
       ref={mapRef}
-      className="w-full h-[60vh] min-h-[300px] rounded-2xl overflow-hidden mx-[10rem]  mask-radial"
+      className="w-[80%] h-[60vh] min-h-[300px] rounded-2xl overflow-hidden  mask-radial"
     />
   );
 };

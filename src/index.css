@@ -7,13 +7,10 @@
   --color-secondary: #1b5674ff;
   --color-tertiary: #e91c30ff;
 }
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+html {
+  scroll-behavior: smooth;
 }
+
 .content {
   position: relative;
   z-index: 1;
@@ -33,7 +30,6 @@ body,
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
 }
 
 /* Style to ensure content is above map */
