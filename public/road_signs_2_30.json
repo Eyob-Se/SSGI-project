@@ -1,0 +1,475 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.99636937, 8.79442973]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 2,
+        "sign_type": "Height Limit",
+        "lat": "8.79335421347303",
+        "long": "38.9955033513433",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.2",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.00123588, 8.79399758]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 3,
+        "sign_type": "Height Limit",
+        "lat": "8.79292203172403",
+        "long": "39.0003697571671",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.3",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.00102429, 8.79315365]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 4,
+        "sign_type": "Height Limit",
+        "lat": "8.79207803093392",
+        "long": "39.0001581769409",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.4",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.9971623, 8.79458335]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 5,
+        "sign_type": "Height Limit",
+        "lat": "8.7935078411189",
+        "long": "38.9962962694562",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.5",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.99760586, 8.79472191]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 6,
+        "sign_type": "Height Limit",
+        "lat": "8.79364641532319",
+        "long": "38.9967398127806",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.6",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.99742766, 8.79416797]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 7,
+        "sign_type": "Height Limit",
+        "lat": "8.79309243183142",
+        "long": "38.9965616234873",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.7",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.99834684, 8.79410505]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 8,
+        "sign_type": "Height Limit",
+        "lat": "8.7930295061394",
+        "long": "38.997480782104",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.8",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.00025216, 8.79122625]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 9,
+        "sign_type": "Height Limit",
+        "lat": "8.79015045803159",
+        "long": "38.9993860664186",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.9",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.00043689, 8.79165274]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 10,
+        "sign_type": "Height Limit",
+        "lat": "8.79057698134877",
+        "long": "38.9995707917444",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.10",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.00510899, 8.78459233]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 11,
+        "sign_type": "Height Limit",
+        "lat": "8.78351596151081",
+        "long": "39.0042428035785",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.11",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.00549313, 8.78487917]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 12,
+        "sign_type": "Height Limit",
+        "lat": "8.78380282089138",
+        "long": "39.0046269384204",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.12",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.01109446, 8.77153068]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 13,
+        "sign_type": "Height Limit",
+        "lat": "8.77045316312501",
+        "long": "39.0102281809598",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.13",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.01150002, 8.77179371]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 14,
+        "sign_type": "Height Limit",
+        "lat": "8.7707162150846",
+        "long": "39.0106337284059",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.14",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.01352955, 8.75814505]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 15,
+        "sign_type": "Height Limit",
+        "lat": "8.7570663497084",
+        "long": "39.0126632516044",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.15",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.01394177, 8.75814603]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 16,
+        "sign_type": "Height Limit",
+        "lat": "8.75706733164895",
+        "long": "39.0130754623395",
+        "remark": "4.2m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.16",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.98207793, 8.80138673]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 17,
+        "sign_type": "Height Limit",
+        "lat": "8.80031179076511",
+        "long": "38.98121220736",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.17",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.9819538, 8.80189684]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 18,
+        "sign_type": "Height Limit",
+        "lat": "8.80082195107222",
+        "long": "38.9810880758428",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.18",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.97798236, 8.8026442]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 19,
+        "sign_type": "Height Limit",
+        "lat": "8.8015693641845",
+        "long": "38.9771167174321",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.19",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.97821746, 8.80295572]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 20,
+        "sign_type": "Height Limit",
+        "lat": "8.80188091673836",
+        "long": "38.9773518121685",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.20",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.96278127, 8.80825096]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 21,
+        "sign_type": "Height Limit",
+        "lat": "8.80717659136008",
+        "long": "38.9619159388483",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.21",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.96299901, 8.80866152]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 22,
+        "sign_type": "Height Limit",
+        "lat": "8.80758719237883",
+        "long": "38.9621336719366",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.22",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.95181406, 8.8137953]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 23,
+        "sign_type": "Height Limit",
+        "lat": "8.81272139768186",
+        "long": "38.9509489511677",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.23",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.95180873, 8.81425301]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 24,
+        "sign_type": "Height Limit",
+        "lat": "8.81317914880938",
+        "long": "38.9509436221961",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.24",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.94555434, 8.8153877]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 25,
+        "sign_type": "Height Limit",
+        "lat": "8.81431392521347",
+        "long": "38.9446893686305",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.25",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.9457826, 8.81580352]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 26,
+        "sign_type": "Height Limit",
+        "lat": "8.81472977965973",
+        "long": "38.9449176223858",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.26",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.94118298, 8.81615588]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 27,
+        "sign_type": "Height Limit",
+        "lat": "8.81508216629142",
+        "long": "38.9403180946366",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.27",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.94126487, 8.81661943]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 28,
+        "sign_type": "Height Limit",
+        "lat": "8.81554575477256",
+        "long": "38.9403999798632",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.28",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.94063086, 8.81347658]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 29,
+        "sign_type": "Height Limit",
+        "lat": "8.81240262570506",
+        "long": "38.9397659928795",
+        "remark": "4.5m"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road_signs_4326_v3.29",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.93882002, 8.81655581]
+      },
+      "geometry_name": "geom",
+      "properties": {
+        "objectid": 30,
+        "sign_type": "Height Limit",
+        "lat": "8.81548212412154",
+        "long": "38.9379551820288",
+        "remark": "4.5m"
+      }
+    }
+  ],
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::4326"
+    }
+  }
+}
