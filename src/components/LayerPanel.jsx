@@ -8,10 +8,6 @@ const LayerPanel = ({ layers, onLayerChange, onClose }) => {
     onLayerChange(layerId, "visible", !layer.visible);
   };
 
-  const handleOpacityChange = (layerId, opacity) => {
-    onLayerChange(layerId, "opacity", opacity);
-  };
-
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -37,34 +33,16 @@ const LayerPanel = ({ layers, onLayerChange, onClose }) => {
             className="border border-gray-200 rounded-md p-3"
           >
             <div className="flex justify-between items-center mb-2">
+              <label className="flex items-center space-x-2 font-medium">
+                <input
+                  type="checkbox"
+                  checked={layer.visible}
+                  onChange={() => handleVisibilityToggle(layer.id)}
+                  className="accent-indigo-900"
+                />
+                <span>{layer.name}</span>
+              </label>
               <span className="font-medium">{layer.name}</span>
-              <button
-                onClick={() => handleVisibilityToggle(layer.id)}
-                className={`p-1 rounded-full ${
-                  layer.visible ? "text-indigo-900" : "text-gray-400"
-                }`}
-              >
-                {layer.visible ? <Eye size={18} /> : <EyeOff size={18} />}
-              </button>
-            </div>
-
-            <div className="flex items-center">
-              <span className="text-xs text-gray-500 w-10">Opacity</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={layer.opacity}
-                onChange={(e) =>
-                  handleOpacityChange(layer.id, parseFloat(e.target.value))
-                }
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                disabled={!layer.visible}
-              />
-              <span className="text-xs text-gray-500 w-8 text-right">
-                {Math.round(layer.opacity * 100)}%
-              </span>
             </div>
           </motion.div>
         ))}

@@ -1,12 +1,16 @@
 import { compare } from "bcrypt";
-import { sign } from "jsonwebtoken";
-import { findOne } from "../models/userModel.js";
+import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
+import dotenv from "dotenv";
+import sequelize from "../models/db.js";
+dotenv.config();
+// Adjust the import path as necessary
+// Make sure your DB pool is imported
 
 // Rate limiter for login attempts
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 3, // Limit each IP to 5 login attempts per windowMs
+  max: 3,
   message: "Too many login attempts, please try again later",
   handler: (req, res) => {
     res.status(429).json({
@@ -16,97 +20,75 @@ const loginLimiter = rateLimit({
   },
 });
 
-// JWT configuration
-const jwtConfig = {
-  secret:
-    process.env.JWT_SECRET ||
-    "dfuyu7$@&3khjbjb&hdcGHFGCG)&G@676753221d06!`10,jv+=0866%3#455", // Should be in environment variables
-  expiresIn: "1h",
-  algorithm: "HS256",
-};
-
 const login = async (req, res) => {
-  // Input validation
-  if (!req.body.email || !req.body.password) {
-    return res.status(400).json({
-      success: false,
-      error: "Email and password are required",
-    });
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Username and password are required." });
   }
+  console.log("Login attempt:", email);
 
   try {
-    // Find user with case-insensitive email
-    const userData = await findOne({
-      where: {
-        email: req.body.email.toLowerCase(),
-      },
-    });
-
-    if (!userData) {
-      // Generic message to prevent user enumeration
-      return res.status(401).json({
-        success: false,
-        error: "Invalid credentials",
-      });
-    }
-
-    // Timing-safe comparison
-    const isPasswordMatched = await compare(
-      req.body.password.toString(),
-      userData.password
-    );
-
-    if (!isPasswordMatched) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid credentials",
-      });
-    }
-
-    // Generate JWT token with minimal claims
-    const token = sign(
+    const result = await sequelize.query(
+      "SELECT * FROM users WHERE email = ?",
       {
-        sub: userData.id, // Standard 'sub' claim
-        role: userData.usertype,
-      },
-      jwtConfig.secret,
-      {
-        expiresIn: jwtConfig.expiresIn,
-        algorithm: jwtConfig.algorithm,
+        replacements: [email],
+        type: sequelize.QueryTypes.SELECT,
       }
     );
 
-    // Secure cookie settings
+    console.log(result, "ppppppppppp");
+
+    if (result.length === 0) {
+      return res
+        .status(401)
+        .json({ success: false, error: "Invalid credentials." });
+    }
+
+    const user = result[0];
+    console.log(user, "user", result.password, "result");
+
+    const isPasswordMatched = await compare(password, user.password);
+    console.log(isPasswordMatched, "ppppppppppppppppp");
+
+    if (!isPasswordMatched) {
+      return res
+        .status(401)
+        .json({ success: false, error: "Invalid credentials." });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.usertype },
+      "pppppppp",
+      { expiresIn: "1h" }
+    );
+
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 3600000, // 1 hour
+      sameSite: "Strict",
+      maxAge: 3600000,
     };
 
-    // Log successful login (without sensitive data)
-    console.log(`User logged in: ${userData.id} (${userData.usertype})`);
-    console.log(`tttt: ${token} (${cookieOptions})`);
+    console.log(`User logged in: ${user.id} (${user.usertype})`);
 
-    // Set secure HTTP-only cookie and return response
     return res
       .cookie("token", token, cookieOptions)
       .status(200)
       .json({
         success: true,
-        message: "Login successful",
+        message: "Logged in successfully",
         user: {
-          id: userData.id,
-          fname: userData.fname,
-          usertype: userData.usertype,
+          id: user.id,
+          email: user.email,
+          role: user.usertype,
         },
       });
   } catch (error) {
     console.error("Login error:", error);
-    return res.status(500).json({
-      success: false,
-      error: "Authentication failed",
-    });
+    res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
 

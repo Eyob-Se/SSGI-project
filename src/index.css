@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 :root {
-  --primary-color: #1a7e76;
+  --primary-color: #31367e;
   --secondary-color: #0f4c49;
   --accent-color: #f97316;
   --neutral-light: #e5e7eb;
@@ -20,7 +20,8 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900;
+    background-color: #f9fafb; /* Tailwind's bg-gray-50 */
+    color: #111827; /* Tailwind's text-gray-900 */
   }
 
   h1,

@@ -1,10 +1,10 @@
 import { Sequelize, BIGINT } from "sequelize";
 
-import { define } from "./db.js";
+import sequelize from "./db.js";
 
 const { DataTypes } = Sequelize;
 
-const Users = define(
+const Users = sequelize.define(
   "users",
   {
     id: {
@@ -14,50 +14,26 @@ const Users = define(
       primaryKey: true, // Define the field as primary key
       autoIncrement: true, // Add auto-increment
     },
-    fname: {
-      type: DataTypes.STRING(100), // Change datatype to character varying with length 100
-      allowNull: true,
-      unique: false,
-    },
-    lname: {
-      type: DataTypes.STRING(100), // Change datatype to character varying with length 100
-      allowNull: true,
-      unique: false,
-    },
-    email: {
-      type: DataTypes.STRING(100), // Change datatype to character varying with length 100
-      allowNull: true,
-      unique: false,
-    },
-    password: {
-      type: DataTypes.STRING(100), // Change datatype to character varying with length 100
-      allowNull: true,
-      unique: false,
-    },
-    phone: {
-      type: DataTypes.STRING(100), // Change datatype to character varying with length 100
-      allowNull: true,
-      unique: false,
-    },
-    usertype: {
-      type: DataTypes.STRING(100), // Change datatype to character varying with length 100
-      allowNull: true,
-      unique: false,
-    },
-    gender: {
-      type: DataTypes.STRING(100), // Change datatype to character varying with length 100
+    username: {
+      type: DataTypes.CHAR, // Change datatype to character varying with length 100
       allowNull: true,
       unique: false,
     },
 
+    password_hash: {
+      type: DataTypes.CHAR, // Change datatype to character varying with length 100
+      allowNull: true,
+      unique: false,
+    },
+    role: {
+      type: DataTypes.TEXT, // Change datatype to character varying with length 100
+      allowNull: true,
+      unique: false,
+    },
     createdAt: {
-      type: DataTypes.DATE,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
   },
 
@@ -66,5 +42,7 @@ const Users = define(
     paranoid: true,
   }
 );
+
+export const findOne = (query) => Users.findOne(query);
 
 export default Users;

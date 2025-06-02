@@ -20,15 +20,10 @@ import {
  * @param {string} props.selectedBasemap - Currently selected basemap
  * @param {Function} props.onBasemapChange - Handler for basemap changes
  */
-const MapControls = ({
-  onLayersClick,
-  onMeasureClick,
-  selectedBasemap,
-  onBasemapChange,
-}) => {
+const MapControls = ({ onLayersClick, selectedBasemap, onBasemapChange }) => {
   return (
     <motion.div
-      className="absolute top-4 right-4 z-10 flex flex-col gap-2"
+      className="absolute top-[16rem] right-4 z-10 flex flex-col gap-2"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 }}
@@ -41,15 +36,6 @@ const MapControls = ({
           title="Layer Controls"
         >
           <Layers size={20} className="text-indigo-900" />
-        </button>
-
-        {/* Measurement tools button */}
-        <button
-          onClick={onMeasureClick}
-          className="w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors"
-          title="Measurement Tools"
-        >
-          <Ruler size={20} className="text-indigo-900" />
         </button>
 
         <hr className="border-gray-200 my-1" />
@@ -104,23 +90,6 @@ const MapControls = ({
             <MapIcon size={20} />
           </button>
         </div>
-
-        <hr className="border-gray-200 my-1" />
-
-        {/* Location and extent buttons */}
-        <button
-          className="w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors"
-          title="My Location"
-        >
-          <MapPin size={20} className="text-accent" />
-        </button>
-
-        <button
-          className="w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors"
-          title="Full Extent"
-        >
-          <Home size={20} className="text-indigo-900" />
-        </button>
       </div>
     </motion.div>
   );

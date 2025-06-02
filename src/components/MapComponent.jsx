@@ -28,7 +28,6 @@ import { Layers, Globe2, Square, MapPin, Search } from "lucide-react";
 // Import custom components
 import MapControls from "./MapControls";
 import LayerPanel from "./LayerPanel";
-import MeasurementTools from "./MeasurementTools";
 
 /**
  * Main map component that handles the OpenLayers map instance and controls
@@ -38,24 +37,16 @@ const MapComponent = () => {
   // Refs and state management
   const mapRef = useRef(); // Reference to the map container div
   const mapInstance = useRef(null); // Reference to the OpenLayers map instance
+  const layerRefs = useRef({});
+  const popupRef = useRef(); // Reference to the popup element for hover info
   const [showLayerPanel, setShowLayerPanel] = useState(false);
   const [showMeasurementTools, setShowMeasurementTools] = useState(false);
   const [selectedBasemap, setSelectedBasemap] = useState("osm");
 
   // Layer configuration state
   const [layers, setLayers] = useState([
-    {
-      id: "admin",
-      name: "Administrative Boundaries",
-      visible: true,
-      opacity: 1,
-    },
-    /*  { id: "cities", name: "Cities & Towns", visible: true, opacity: 1 },
-    { id: "roads", name: "Road Networks", visible: true, opacity: 1 },
-    { id: "water", name: "Water Bodies", visible: true, opacity: 1 },
-    { id: "pois", name: "Points of Interest", visible: false, opacity: 1 }, */
-    { id: "zero", name: "Zero Order", visible: false, opacity: 1 },
-    { id: "first", name: "First Order", visible: false, opacity: 1 },
+    { id: "zero", name: "Zero Order", visible: true, opacity: 1 },
+    { id: "first", name: "First Order", visible: true, opacity: 1 },
   ]);
 
   // Initialize map on component mount
@@ -70,28 +61,6 @@ const MapComponent = () => {
         visible: selectedBasemap === "osm",
         zIndex: 0,
         title: "OSM",
-      });
-
-      // Zero Order Points Layer
-      const zeroOrderLayer = new VectorLayer({
-        source: new VectorSource({
-          url: "",
-          format: new GeoJSON(),
-        }),
-        visible: false,
-        title: "Zero Order",
-        zIndex: 2,
-      });
-
-      // First Order Points Layer
-      const firstOrderLayer = new VectorLayer({
-        source: new VectorSource({
-          url: "",
-          format: new GeoJSON(),
-        }),
-        visible: false,
-        title: "First Order",
-        zIndex: 2,
       });
 
       // Satellite imagery layer
@@ -137,16 +106,17 @@ const MapComponent = () => {
       });
 
       // Road signs vector layer
-      const roadSignsLayer = new VectorLayer({
+      const zero_order = new VectorLayer({
         source: new VectorSource({
-          url: "/road_signs_2_30.json", // must be in public/ folder
+          url: "http://localhost:8000/api/geo",
           format: new GeoJSON(),
         }),
         style: roadSignStyle,
         visible: true,
         zIndex: 3,
-        title: "Road Signs",
+        title: "zero",
       });
+      layerRefs.current["zero"] = zero_order;
 
       // Style for road sign points
       const roadSignStyle2 = new Style({
@@ -158,16 +128,17 @@ const MapComponent = () => {
       });
 
       // Road signs vector layer
-      const roadSignsLayer2 = new VectorLayer({
+      const first_order = new VectorLayer({
         source: new VectorSource({
-          url: "/road_signs_31_60.json", // must be in public/ folder
+          url: "http://localhost:8000/api/geo1",
           format: new GeoJSON(),
         }),
         style: roadSignStyle2,
         visible: true,
         zIndex: 3,
-        title: "Road Signs",
+        title: "first",
       });
+      layerRefs.current["first"] = first_order;
 
       // Style for Ethiopia boundary
       const ethiopiaStyle = new Style({
@@ -206,14 +177,12 @@ const MapComponent = () => {
           terrainLayer,
           streetsLayer,
           ethiopiaBoundary,
-          zeroOrderLayer,
-          firstOrderLayer,
-          roadSignsLayer,
-          roadSignsLayer2,
+          zero_order,
+          first_order,
         ],
         view: new View({
           center: ethiopiaCenter,
-          zoom: 6,
+          zoom: 6.5,
           maxZoom: 19,
           minZoom: 4,
         }),
@@ -226,15 +195,52 @@ const MapComponent = () => {
             className: "custom-mouse-position",
             target: document.getElementById("mouse-position"),
           }),
-          new ZoomSlider(),
           new FullScreen(),
-          new ZoomToExtent({
-            extent: [3700000, 1000000, 4700000, 1300000],
-          }),
         ]),
       });
 
       mapInstance.current = map;
+
+      // Add this after mapInstance.current = map;
+      const popupOverlay = new Overlay({
+        element: popupRef.current,
+        positioning: "bottom-center",
+        stopEvent: false,
+        offset: [0, -12],
+      });
+      map.addOverlay(popupOverlay);
+
+      // Pointer move event for showing popup
+      map.on("pointermove", (event) => {
+        const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
+        if (feature) {
+          mapRef.current.style.cursor = "pointer";
+          const coordinates = event.coordinate;
+
+          const imageUrl = feature.get("image"); // GeoJSON property
+          const description =
+            feature.get("description") || "No description available"; // GeoJSON property
+
+          if (imageUrl || description) {
+            const popupContent = `
+        <div class="bg-white p-2 shadow-md rounded-lg border text-sm max-w-xs transition-opacity duration-300">
+          ${
+            imageUrl
+              ? `<img src="${imageUrl}" class="w-full h-20 object-cover rounded mb-2" />`
+              : ""
+          }
+          ${description ? `<p class="text-gray-800">${description}</p>` : ""}
+        </div>
+      `;
+            popupRef.current.innerHTML = popupContent;
+            popupOverlay.setPosition(coordinates);
+            popupRef.current.style.display = "block";
+          }
+        } else {
+          mapRef.current.style.cursor = ""; // Reset to default
+          popupRef.current.style.display = "none";
+        }
+      });
     }
 
     // Cleanup function to destroy map on unmount
@@ -266,26 +272,31 @@ const MapComponent = () => {
     }
   }, [selectedBasemap]);
 
+  // Update layer visibility on checkbox toggle
+  useEffect(() => {
+    layers.forEach((layer) => {
+      const olLayer = layerRefs.current[layer.id];
+      if (olLayer) {
+        olLayer.setVisible(layer.visible);
+        olLayer.setOpacity(layer.opacity);
+      }
+    });
+  }, [layers]);
+
   // Toggle handlers for panels
   const toggleLayerPanel = () => {
     setShowLayerPanel(!showLayerPanel);
     if (showMeasurementTools) setShowMeasurementTools(false);
   };
 
-  const toggleMeasurementTools = () => {
-    setShowMeasurementTools(!showMeasurementTools);
-    if (showLayerPanel) setShowLayerPanel(false);
-  };
-
   // Handler for changing basemap
   const changeBasemap = (basemap) => {
     setSelectedBasemap(basemap);
   };
-
-  // Handler for layer property changes
+  // Handler for checkbox or opacity slider
   const handleLayerChange = (layerId, property, value) => {
-    setLayers(
-      layers.map((layer) =>
+    setLayers((prev) =>
+      prev.map((layer) =>
         layer.id === layerId ? { ...layer, [property]: value } : layer
       )
     );
@@ -295,11 +306,16 @@ const MapComponent = () => {
     <div className="relative h-full w-full">
       {/* Map container */}
       <div ref={mapRef} className="map"></div>
+      {/* Popup for hover */}
+      <div
+        ref={popupRef}
+        className="absolute z-50 pointer-events-none"
+        style={{ display: "none" }}
+      ></div>
 
       {/* Map Controls */}
       <MapControls
         onLayersClick={toggleLayerPanel}
-        onMeasureClick={toggleMeasurementTools}
         selectedBasemap={selectedBasemap}
         onBasemapChange={changeBasemap}
       />
@@ -325,23 +341,6 @@ const MapComponent = () => {
           layers={layers}
           onLayerChange={handleLayerChange}
           onClose={() => setShowLayerPanel(false)}
-        />
-      </motion.div>
-
-      {/* Measurement Tools */}
-      <motion.div
-        className="absolute top-4 left-4 bg-white rounded-lg shadow-lg z-10"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{
-          opacity: showMeasurementTools ? 1 : 0,
-          x: showMeasurementTools ? 0 : -20,
-          pointerEvents: showMeasurementTools ? "auto" : "none",
-        }}
-        transition={{ duration: 0.3 }}
-      >
-        <MeasurementTools
-          map={mapInstance.current}
-          onClose={() => setShowMeasurementTools(false)}
         />
       </motion.div>
     </div>

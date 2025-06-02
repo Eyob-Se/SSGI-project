@@ -5,7 +5,7 @@ import { User, Lock, LogIn } from "lucide-react";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
-    username: "",
+    email: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -21,27 +21,41 @@ const Login = () => {
     if (errorMessage) setErrorMessage("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call for login
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: {
+          "content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password,
+        }),
+      });
+      const data = await response.json();
       setIsLoading(false);
-
-      // For demo purposes - hardcoded admin login
-      if (
-        credentials.username === "admin" &&
-        credentials.password === "admin123"
-      ) {
-        // Redirect to users management page on successful login
-        navigate("/data-upload");
-      } else {
-        setErrorMessage(
-          "Invalid username or password. Try admin/admin123 for demo."
-        );
-      }
-    }, 1500);
+      if (response.ok && data.success) {
+        const usertype = data.user.role || data.user.usertype;
+        if (usertype === "superAdmin") {
+          navigate("/users");
+        } else if (usertype === "pointAdmin") {
+          navigate("/points");
+        } else if (usertype === "dataAdmin") {
+          navigate("/data-upload");
+        } else {
+          navigate("/point-details/:AA01");
+        }
+      } else setErrorMessage(data.error || "Invalid Credentials");
+    } catch (error) {
+      console.error("Login error:", error);
+      setIsLoading(false);
+      setErrorMessage("An error occurred. Please try again.");
+    }
   };
 
   return (
@@ -93,10 +107,10 @@ const Login = () => {
                 </div>
                 <input
                   id="username"
-                  name="username"
-                  type="text"
+                  name="email"
+                  type="email"
                   required
-                  value={credentials.username}
+                  value={credentials.email}
                   onChange={handleChange}
                   className="input-field pl-10 w-full"
                   placeholder="Enter your username"
