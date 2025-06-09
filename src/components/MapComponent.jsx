@@ -214,31 +214,37 @@ const MapComponent = () => {
       map.on("pointermove", (event) => {
         const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
         if (feature) {
-          mapRef.current.style.cursor = "pointer";
-          const coordinates = event.coordinate;
+          const geometry = feature.getGeometry();
+          const geomType = geometry.getType();
+          if (geomType === "Point") {
+            mapRef.current.style.cursor = "pointer";
+            const coordinates = event.coordinate;
 
-          const imageUrl = feature.get("image"); // GeoJSON property
-          const description =
-            feature.get("description") || "No description available"; // GeoJSON property
-
-          if (imageUrl || description) {
-            const popupContent = `
-        <div class="bg-white p-2 shadow-md rounded-lg border text-sm max-w-xs transition-opacity duration-300">
-          ${
-            imageUrl
-              ? `<img src="${imageUrl}" class="w-full h-20 object-cover rounded mb-2" />`
-              : ""
+            const long = feature.get("long"); // GeoJSON property
+            const lat = feature.get("lat") || "No description available"; // GeoJSON property
+            if (long || lat) {
+              const popupContent = `
+            <div class="bg-white p-2 shadow-md rounded-lg border text-sm max-w-xs transition-opacity duration-300">
+              ${
+                long
+                  ? `<p class="text-gray-800">lat: ${long}</p>`
+                  : "longitude not available"
+              }
+              ${
+                lat
+                  ? `<p class="text-gray-800">long: ${lat}</p>`
+                  : "latitude not available"
+              }
+            </div>
+          `;
+              popupRef.current.innerHTML = popupContent;
+              popupOverlay.setPosition(coordinates);
+              popupRef.current.style.display = "block";
+            }
+          } else {
+            mapRef.current.style.cursor = ""; // Reset to default
+            popupRef.current.style.display = "none";
           }
-          ${description ? `<p class="text-gray-800">${description}</p>` : ""}
-        </div>
-      `;
-            popupRef.current.innerHTML = popupContent;
-            popupOverlay.setPosition(coordinates);
-            popupRef.current.style.display = "block";
-          }
-        } else {
-          mapRef.current.style.cursor = ""; // Reset to default
-          popupRef.current.style.display = "none";
         }
       });
     }
@@ -321,10 +327,10 @@ const MapComponent = () => {
       />
 
       {/* Mouse position display */}
-      <div
+      {/*   <div
         id="mouse-position"
         className="absolute bottom-0 right-0 bg-white/80 px-2 py-1 text-sm rounded-tl-md border-t border-l border-gray-300"
-      ></div>
+      ></div> */}
 
       {/* Layer Panel */}
       <motion.div

@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import UserManagement from "./pages/UserManagement";
 import PointDetails from "./pages/PointDetails";
 import DataUpload from "./pages/DataUpload";
+import RequestManagement from "./pages/RequestManagement";
 
 // Import layout component
 import Layout from "./components/Layout";
@@ -34,6 +35,7 @@ function App() {
             <Route path="users" element={<UserManagement />} />
             <Route path="point-details/:id" element={<PointDetails />} />
             <Route path="data-upload" element={<DataUpload />} />
+            <Route path="request-management" element={<RequestManagement />} />
           </Route>
         </Routes>
       </AnimatePresence>
