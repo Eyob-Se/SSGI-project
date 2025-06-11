@@ -2,22 +2,18 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, LogIn } from "lucide-react";
+import { useUser } from "../context/UserContext"; // Import context
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({
-    email: "",
-    password: "",
-  });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
   const navigate = useNavigate();
+  const { login } = useUser(); // <-- Use context
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCredentials({ ...credentials, [name]: value });
-
-    // Clear error message when user starts typing
     if (errorMessage) setErrorMessage("");
   };
 
@@ -28,9 +24,7 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost:8000/api/login", {
         method: "POST",
-        headers: {
-          "content-Type": "application/json",
-        },
+        headers: { "content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
           email: credentials.email,
@@ -39,24 +33,35 @@ const Login = () => {
       });
       const data = await response.json();
       setIsLoading(false);
+
       if (response.ok && data.success) {
+        // Save user info in context
+        const token = data.token;
         const usertype = data.user.role || data.user.usertype;
+
+        login({ ...data.user, usertype, token }); // Store all user info in context
+
+        // Redirect based on usertype
         if (usertype === "superAdmin") {
           navigate("/users");
-        } else if (usertype === "pointAdmin") {
+        } else if (usertype === "requestAdmin") {
           navigate("/points");
         } else if (usertype === "dataAdmin") {
           navigate("/data-upload");
         } else {
           navigate("/point-details/:AA01");
         }
-      } else setErrorMessage(data.error || "Invalid Credentials");
+      } else {
+        setErrorMessage(data.error || "Invalid Credentials");
+      }
     } catch (error) {
       console.error("Login error:", error);
       setIsLoading(false);
       setErrorMessage("An error occurred. Please try again.");
     }
   };
+
+  // ... rest remains unchanged ...
 
   return (
     <motion.div

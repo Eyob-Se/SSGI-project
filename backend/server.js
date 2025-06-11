@@ -4,6 +4,9 @@ import cookieParser from "cookie-parser";
 import geoRoutes from "./routes/geo.js";
 import geo1Routes from "./routes/geo1.js";
 import login from "./routes/login.js";
+import logout from "./routes/logout.js"; // Ensure you have this route
+import userRoutes from "./routes/users.js"; // Import user routes if needed
+import controlPointsRouter from "./routes/controlPoints.js"; // Import control points route
 import sequelize from "./models/db.js"; // adjust path
 
 const app = express();
@@ -22,6 +25,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/login", login);
 app.use("/api/geo", geoRoutes);
 app.use("/api/geo1", geo1Routes);
+app.use("/api/users", userRoutes);
+app.use("/api/logout", logout); // Add logout route
+app.use("/api/controlPoints", controlPointsRouter); // Add control points route
 
 async function startServer(port) {
   try {

@@ -1,18 +1,58 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapIcon, Menu, X, User } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import ssgi from "../assets/ssgi1.png";
+import { useUser } from "../context/UserContext"; // import the context
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useUser();
 
-  const navLinks = [
+  // Dynamic links based on usertype
+  let navLinks = [
     { name: "Home", path: "/" },
     { name: "About Us", path: "/about" },
     { name: "Data Request", path: "/data-request" },
   ];
+
+  if (user.isLoggedIn && user.usertype === "superAdmin") {
+    navLinks = [{ name: "", path: "" }];
+  } else if (user.isLoggedIn && user.usertype === "dataAdmin") {
+    navLinks = [
+      { name: "", path: "" },
+      // Add more student links here
+    ];
+  }
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/logout", {
+        method: "POST",
+        credentials: "include", // send cookies
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json().catch(() => ({})); // catch JSON error
+
+      if (response.ok) {
+        console.log("Logout success:", result);
+        logout();
+        setIsOpen(false);
+        navigate("/");
+      } else {
+        console.error("Logout failed:", result?.message || response.statusText);
+        alert("Logout failed: " + (result?.message || response.statusText));
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("Logout error: " + error.message);
+    }
+  };
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -49,17 +89,26 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-
             <div className="ml-6">
-              <Link
-                to="/login"
-                className={`px-3 py-2 rounded-md text-sm font-medium border border-white/30 hover:bg-white/10 flex items-center ${
-                  location.pathname === "/login" ? "bg-white/20" : ""
-                }`}
-              >
-                <User className="w-4 h-4 mr-1" />
-                Login
-              </Link>
+              {user.isLoggedIn ? (
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-2 rounded-md text-sm font-medium border border-white/30 hover:bg-white/10 flex items-center"
+                >
+                  <LogOut className="w-4 h-4 mr-1" />
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  className={`px-3 py-2 rounded-md text-sm font-medium border border-white/30 hover:bg-white/10 flex items-center ${
+                    location.pathname === "/login" ? "bg-white/20" : ""
+                  }`}
+                >
+                  <User className="w-4 h-4 mr-1" />
+                  Login
+                </Link>
+              )}
             </div>
           </div>
 
@@ -103,18 +152,28 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Link
-              to="/login"
-              className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
-                location.pathname === "/login"
-                  ? "bg-blue-800 text-white"
-                  : "text-gray-200 hover:bg-blue-800 hover:text-white"
-              }`}
-              onClick={() => setIsOpen(false)}
-            >
-              <User className="w-4 h-4 mr-2" />
-              Login
-            </Link>
+            {user.isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium flex items-center text-gray-200 hover:bg-blue-800 hover:text-white"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
+                  location.pathname === "/login"
+                    ? "bg-blue-800 text-white"
+                    : "text-gray-200 hover:bg-blue-800 hover:text-white"
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                <User className="w-4 h-4 mr-2" />
+                Login
+              </Link>
+            )}
           </div>
         </motion.div>
       )}

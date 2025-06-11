@@ -193,7 +193,6 @@ const MapComponent = () => {
             coordinateFormat: createStringXY(4),
             projection: "EPSG:4326",
             className: "custom-mouse-position",
-            target: document.getElementById("mouse-position"),
           }),
           new FullScreen(),
         ]),
@@ -327,7 +326,7 @@ const MapComponent = () => {
       />
 
       {/* Mouse position display */}
-      {/*   <div
+      {/*    <div
         id="mouse-position"
         className="absolute bottom-0 right-0 bg-white/80 px-2 py-1 text-sm rounded-tl-md border-t border-l border-gray-300"
       ></div> */}

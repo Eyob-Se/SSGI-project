@@ -32,7 +32,7 @@ const MapControls = ({ onLayersClick, selectedBasemap, onBasemapChange }) => {
         {/* Layer control button */}
         <button
           onClick={onLayersClick}
-          className="w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded-md hover:bg-indigo-100 transition-colors"
           title="Layer Controls"
         >
           <Layers size={20} className="text-indigo-900" />
@@ -44,10 +44,8 @@ const MapControls = ({ onLayersClick, selectedBasemap, onBasemapChange }) => {
         <div className="flex flex-col gap-1" title="Basemap Selection">
           <button
             onClick={() => onBasemapChange("osm")}
-            className={`w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors ${
-              selectedBasemap === "osm"
-                ? "bg-indigo-900 text-white hover:bg-indigo-900-dark"
-                : ""
+            className={`w-10 h-10 flex items-center justify-center rounded-md ${
+              selectedBasemap === "osm" ? "bg-indigo-900 text-white " : ""
             }`}
             title="OpenStreetMap"
           >
@@ -56,10 +54,8 @@ const MapControls = ({ onLayersClick, selectedBasemap, onBasemapChange }) => {
 
           <button
             onClick={() => onBasemapChange("satellite")}
-            className={`w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors ${
-              selectedBasemap === "satellite"
-                ? "bg-indigo-900 text-white hover:bg-blue-600"
-                : ""
+            className={`w-10 h-10 flex items-center justify-center rounded-md ${
+              selectedBasemap === "satellite" ? "bg-indigo-900 text-white" : ""
             }`}
             title="Satellite"
           >
@@ -68,10 +64,8 @@ const MapControls = ({ onLayersClick, selectedBasemap, onBasemapChange }) => {
 
           <button
             onClick={() => onBasemapChange("terrain")}
-            className={`w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors ${
-              selectedBasemap === "terrain"
-                ? "bg-indigo-900 text-white hover:bg-blue-600"
-                : ""
+            className={`w-10 h-10 flex items-center justify-center rounded-md ${
+              selectedBasemap === "terrain" ? "bg-indigo-900 text-white" : ""
             }`}
             title="Terrain"
           >
@@ -80,10 +74,8 @@ const MapControls = ({ onLayersClick, selectedBasemap, onBasemapChange }) => {
 
           <button
             onClick={() => onBasemapChange("streets")}
-            className={`w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors ${
-              selectedBasemap === "streets"
-                ? "bg-indigo-900 text-white hover:bg-blue-600"
-                : ""
+            className={`w-10 h-10 flex items-center justify-center rounded-md ${
+              selectedBasemap === "streets" ? "bg-indigo-900 text-white" : ""
             }`}
             title="Streets"
           >

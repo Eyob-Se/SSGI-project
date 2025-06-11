@@ -5,7 +5,7 @@
 
 :root {
   --primary-color: #31367e;
-  --secondary-color: #0f4c49;
+  --secondary-color: #111252;
   --accent-color: #f97316;
   --neutral-light: #e5e7eb;
   --neutral-dark: #374151;
@@ -78,11 +78,26 @@
 }
 
 .ol-control button {
-  @apply bg-[var(--primary-color)] text-white hover:bg-[var(--secondary-color)];
+  @apply bg-[var(--primary-color)] text-white hover:bg-[var(--secondary-color)] hover:text-white;
+  transition: background-color 0.3s ease-in-out;
 }
 
 @media screen and (max-width: 640px) {
   .map {
     height: calc(100vh - 56px);
   }
+}
+.custom-mouse-position {
+  background-color: #ffffff;
+  color: black;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border-color: #374151;
+  border: 1px solid;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-family: "Poppins", sans-serif;
+  font-size: 0.875rem; /* Tailwind's text-sm */
+  position: absolute;
+  bottom: 2rem;
+  right: 0;
 }

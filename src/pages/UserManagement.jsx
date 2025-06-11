@@ -1,120 +1,140 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Plus, Edit, Trash2, Search, Eye, EyeOff, X } from "lucide-react";
+import { Plus, Edit, Trash2, Search, X } from "lucide-react";
+import bcrypt from "bcryptjs"; // Import bcrypt for hashing
+
+const API = "http://localhost:8000/api/users"; // <- change if needed
 
 const UserManagement = () => {
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Admin User",
-      username: "admin",
-      email: "admin@cors.gov.et",
-      userType: "Administrator",
-      isActive: true,
-    },
-    {
-      id: 2,
-      name: "John Doe",
-      username: "john.doe",
-      email: "john@example.com",
-      userType: "Standard",
-      isActive: true,
-    },
-    {
-      id: 3,
-      name: "Jane Smith",
-      username: "jane.smith",
-      email: "jane@example.com",
-      userType: "Standard",
-      isActive: false,
-    },
-  ]);
-
+  const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
-    name: "",
-    username: "",
+    fname: "",
+    lname: "",
     email: "",
-    userType: "Standard",
+    usertype: "Standard",
     isActive: true,
+    password: "", // Add password to form data
   });
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
+  /* ─────────── FETCH on mount ─────────── */
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch(API, { credentials: "include" });
+        const data = await res.json();
+        setUsers(data);
+      } catch (e) {
+        console.error("Fetch error:", e);
+      }
+    };
+    fetchUsers();
+  }, []);
 
-  const filteredUsers = users.filter((user) => {
-    const term = searchTerm.toLowerCase();
-    return (
-      user.name.toLowerCase().includes(term) ||
-      user.username.toLowerCase().includes(term) ||
-      user.email.toLowerCase().includes(term) ||
-      user.userType.toLowerCase().includes(term)
-    );
-  });
+  /* ─────────── SEARCH ─────────── */
+  const handleSearch = (e) => setSearchTerm(e.target.value);
+  const filteredUsers = users.filter((u) =>
+    `${u.fname} ${u.lname} ${u.email} ${u.usertype}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
 
+  /* ─────────── FORM helpers ─────────── */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((f) => ({
+      ...f,
       [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      fname: "",
+      lname: "",
+      email: "",
+      usertype: "Standard",
+      isActive: true,
+      password: "", // Reset password
     });
   };
 
+  /* ─────────── MODAL actions ─────────── */
   const handleAddUser = () => {
     setCurrentUser(null);
+    resetForm();
+    setShowModal(true);
+  };
+
+  const handleEditUser = (u) => {
+    setCurrentUser(u);
     setFormData({
-      name: "",
-      username: "",
-      email: "",
-      userType: "Standard",
-      isActive: true,
+      fname: u.fname,
+      lname: u.lname,
+      email: u.email,
+      usertype: u.usertype,
+      isActive: u.isActive,
+      password: "", // Do not pre-fill password for security reasons
     });
     setShowModal(true);
   };
 
-  const handleEditUser = (user) => {
-    setCurrentUser(user);
-    setFormData({
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      userType: user.userType,
-      isActive: user.isActive,
-    });
-    setShowModal(true);
-  };
-
-  const handleDeleteUser = (userId) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-      setUsers(users.filter((user) => user.id !== userId));
+  const handleDeleteUser = async (id) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    try {
+      const res = await fetch(`${API}/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) setUsers((u) => u.filter((x) => x.id !== id));
+    } catch (e) {
+      console.error("Delete error:", e);
     }
   };
 
-  const handleSubmit = (e) => {
+  /* ─────────── SUBMIT (add / edit) ─────────── */
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const method = currentUser ? "PUT" : "POST";
+    const url = currentUser ? `${API}/${currentUser.id}` : API;
 
-    if (currentUser) {
-      // Edit existing user
-      setUsers(
-        users.map((user) =>
-          user.id === currentUser.id ? { ...user, ...formData } : user
-        )
-      );
+    // Hash password if provided
+    if (formData.password) {
+      const salt = bcrypt.genSaltSync(10);
+      formData.password = bcrypt.hashSync(formData.password, salt);
     } else {
-      // Add new user
-      const newUser = {
-        id: users.length + 1,
-        ...formData,
-      };
-      setUsers([...users, newUser]);
+      delete formData.password; // Remove password if not provided
     }
 
-    setShowModal(false);
-  };
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
+      const saved = await res.json();
 
+      if (!res.ok) throw new Error(saved.error || "Save failed");
+
+      setUsers(
+        (prev) =>
+          method === "POST"
+            ? [...prev, saved]
+            : prev.map((u) =>
+                u.id === saved.id
+                  ? { ...u, isActive: formData.isActive, ...saved }
+                  : u
+              ) // Ensure isActive is updated
+      );
+      setShowModal(false);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+  /* ─────────── UI (unchanged markup & classes) ─────────── */
   return (
     <motion.div
       className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
@@ -123,39 +143,39 @@ const UserManagement = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
+      {/* header + add button (unchanged) */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3 }}
         >
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600">
             Manage users and their access to the system
           </p>
         </motion.div>
-
         <motion.div
           className="mt-4 md:mt-0 flex"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
+          transition={{ delay: 0.1 }}
         >
           <button
             onClick={handleAddUser}
             className="btn bg-blue-900 text-white flex items-center"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Add New User
+            <Plus className="w-4 h-4 mr-2" /> Add New User
           </button>
         </motion.div>
       </div>
 
+      {/* search bar + table (identical markup) */}
+      {/* --- search bar --- */}
       <motion.div
         className="bg-white rounded-lg shadow-md mb-6"
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3, delay: 0.2 }}
+        transition={{ delay: 0.2 }}
       >
         <div className="p-4">
           <div className="relative">
@@ -172,44 +192,28 @@ const UserManagement = () => {
           </div>
         </div>
 
+        {/* --- table (only handlers changed) --- */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
+              {/* headings unchanged */}
               <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Name
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  First Name
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Username
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Last Name
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Email
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   User Type
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -219,17 +223,17 @@ const UserManagement = () => {
                 <tr key={user.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {user.name}
+                      {user.fname}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{user.username}</div>
+                    <div className="text-sm text-gray-500">{user.lname}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500">{user.email}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{user.userType}</div>
+                    <div className="text-sm text-gray-500">{user.usertype}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -250,7 +254,7 @@ const UserManagement = () => {
                       >
                         <Edit className="w-4 h-4" />
                       </button>
-                      {user.id !== 1 && ( // Prevent deleting admin user
+                      {user.id !== 1 && (
                         <button
                           onClick={() => handleDeleteUser(user.id)}
                           className="text-red-600 hover:text-red-900"
@@ -262,7 +266,6 @@ const UserManagement = () => {
                   </td>
                 </tr>
               ))}
-
               {filteredUsers.length === 0 && (
                 <tr>
                   <td
@@ -278,14 +281,13 @@ const UserManagement = () => {
         </div>
       </motion.div>
 
-      {/* User Form Modal */}
+      {/* modal (same markup, submit wired) */}
       {showModal && (
         <div className="fixed inset-0 z-[9999] overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4 text-center">
             <div className="fixed inset-0 transition-opacity pointer-events-none">
               <div className="absolute inset-0 bg-gray-500 opacity-10"></div>
             </div>
-
             <motion.div
               className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
               initial={{ scale: 0.9, opacity: 0 }}
@@ -305,43 +307,43 @@ const UserManagement = () => {
                   </button>
                 </div>
 
+                {/* --- form unchanged, handlers wired --- */}
                 <form onSubmit={handleSubmit}>
+                  {/* First name */}
                   <div className="mb-4">
                     <label
-                      htmlFor="name"
+                      htmlFor="fname"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Full Name
+                      First Name
                     </label>
                     <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
+                      id="fname"
+                      name="fname"
+                      value={formData.fname}
                       onChange={handleChange}
                       className="input-field w-full"
                       required
                     />
                   </div>
-
+                  {/* Last name */}
                   <div className="mb-4">
                     <label
-                      htmlFor="username"
+                      htmlFor="lname"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Username
+                      Last Name
                     </label>
                     <input
-                      type="text"
-                      id="username"
-                      name="username"
-                      value={formData.username}
+                      id="lname"
+                      name="lname"
+                      value={formData.lname}
                       onChange={handleChange}
                       className="input-field w-full"
                       required
                     />
                   </div>
-
+                  {/* email */}
                   <div className="mb-4">
                     <label
                       htmlFor="email"
@@ -350,8 +352,8 @@ const UserManagement = () => {
                       Email
                     </label>
                     <input
-                      type="email"
                       id="email"
+                      type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
@@ -359,28 +361,46 @@ const UserManagement = () => {
                       required
                     />
                   </div>
-
+                  {/* Password */}
                   <div className="mb-4">
                     <label
-                      htmlFor="userType"
+                      htmlFor="password"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Password
+                    </label>
+                    <input
+                      id="password"
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="input-field w-full"
+                      required={!currentUser} // Require password only when adding a new user
+                    />
+                  </div>
+                  {/* usertype */}
+                  <div className="mb-4">
+                    <label
+                      htmlFor="usertype"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       User Type
                     </label>
                     <select
-                      id="userType"
-                      name="userType"
-                      value={formData.userType}
+                      id="usertype"
+                      name="usertype"
+                      value={formData.usertype}
                       onChange={handleChange}
                       className="input-field w-full"
                       required
                     >
-                      <option value="Administrator">Administrator</option>
-                      <option value="Standard">Standard</option>
-                      <option value="ReadOnly">Read Only</option>
+                      <option value="dataAdmin">Data Admin</option>
+                      <option value="Standard">Standard user</option>
+                      <option value="requestAdmin">Request Admin</option>
                     </select>
                   </div>
-
+                  {/* active */}
                   <div className="mb-6">
                     <div className="flex items-center">
                       <input
@@ -399,7 +419,6 @@ const UserManagement = () => {
                       </label>
                     </div>
                   </div>
-
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"

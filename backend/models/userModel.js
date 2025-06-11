@@ -1,5 +1,4 @@
-import { Sequelize, BIGINT } from "sequelize";
-
+import { Sequelize } from "sequelize";
 import sequelize from "./db.js";
 
 const { DataTypes } = Sequelize;
@@ -8,41 +7,59 @@ const Users = sequelize.define(
   "users",
   {
     id: {
-      type: DataTypes.INTEGER, // Change datatype to character varying with length 100
-      allowNull: true,
-      unique: false,
-      primaryKey: true, // Define the field as primary key
-      autoIncrement: true, // Add auto-increment
-    },
-    username: {
-      type: DataTypes.CHAR, // Change datatype to character varying with length 100
-      allowNull: true,
-      unique: false,
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+      primaryKey: true,
+      autoIncrement: true,
     },
 
-    password_hash: {
-      type: DataTypes.CHAR, // Change datatype to character varying with length 100
+    // ─────────── identity ───────────
+    fname: {
+      type: DataTypes.STRING(100),
       allowNull: true,
-      unique: false,
     },
-    role: {
-      type: DataTypes.TEXT, // Change datatype to character varying with length 100
+    lname: {
+      type: DataTypes.STRING(100),
       allowNull: true,
-      unique: false,
     },
+    email: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      unique: true,
+      validate: { isEmail: true },
+    },
+
+    // ─────────── auth / role ───────────
+    password: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
+    usertype: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
+
+    // ─────────── status flag ───────────
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
+
     createdAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.NOW,
     },
   },
-
   {
     freezeTableName: true,
-    paranoid: true,
+    paranoid: true, // adds deletedAt (soft-delete)
+    timestamps: true, // createdAt + updatedAt
+    updatedAt: false, // remove updatedAt if you don’t need it
   }
 );
 
 export const findOne = (query) => Users.findOne(query);
-
 export default Users;

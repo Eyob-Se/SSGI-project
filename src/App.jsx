@@ -12,6 +12,8 @@ import UserManagement from "./pages/UserManagement";
 import PointDetails from "./pages/PointDetails";
 import DataUpload from "./pages/DataUpload";
 import RequestManagement from "./pages/RequestManagement";
+import { UserProvider } from "./context/UserContext";
+import PrivateRoute from "./components/PrivateRoute";
 
 // Import layout component
 import Layout from "./components/Layout";
@@ -22,24 +24,43 @@ import Layout from "./components/Layout";
  */
 function App() {
   return (
-    <Router>
-      <AnimatePresence mode="wait">
-        <Routes>
-          {/* Main layout wrapper that includes navbar and footer */}
-          <Route path="/" element={<Layout />}>
-            {/* Define all routes and their corresponding components */}
-            <Route index element={<Home />} />
-            <Route path="about" element={<About />} />
-            <Route path="data-request" element={<DataRequest />} />
-            <Route path="login" element={<Login />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="point-details/:id" element={<PointDetails />} />
-            <Route path="data-upload" element={<DataUpload />} />
-            <Route path="request-management" element={<RequestManagement />} />
-          </Route>
-        </Routes>
-      </AnimatePresence>
-    </Router>
+    <UserProvider>
+      <Router>
+        <AnimatePresence mode="wait">
+          <Routes>
+            {/* Main layout wrapper that includes navbar and footer */}
+            <Route path="/" element={<Layout />}>
+              {/* Define all routes and their corresponding components */}
+              <Route index element={<Home />} />
+              <Route path="about" element={<About />} />
+              <Route path="data-request" element={<DataRequest />} />
+              <Route path="login" element={<Login />} />
+              <Route
+                path="users"
+                element={
+                  <PrivateRoute allowedRoles={["superAdmin"]}>
+                    <UserManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="point-details/:id" element={<PointDetails />} />
+              <Route
+                path="data-upload"
+                element={
+                  <PrivateRoute allowedRoles={["dataAdmin"]}>
+                    <DataUpload />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="request-management"
+                element={<RequestManagement />}
+              />
+            </Route>
+          </Routes>
+        </AnimatePresence>
+      </Router>
+    </UserProvider>
   );
 }
 

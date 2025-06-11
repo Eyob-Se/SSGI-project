@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Upload, X, Check, FileText } from 'lucide-react';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Upload, X, Check, FileText } from "lucide-react";
 
 const DataUpload = () => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
   });
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
@@ -39,9 +39,9 @@ const DataUpload = () => {
   };
 
   const formatFileSize = (bytes) => {
-    if (bytes < 1024) return bytes + ' bytes';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    else return (bytes / 1048576).toFixed(1) + ' MB';
+    if (bytes < 1024) return bytes + " bytes";
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+    else return (bytes / 1048576).toFixed(1) + " MB";
   };
 
   const handleDragOver = (e) => {
@@ -60,7 +60,7 @@ const DataUpload = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) {
       setFile(droppedFile);
@@ -73,32 +73,41 @@ const DataUpload = () => {
     setFilePreview(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!file) {
-      alert('Please select a file to upload.');
+      alert("Please select a file to upload.");
       return;
     }
-    
+
     setIsUploading(true);
-    
-    // Simulate upload process
-    setTimeout(() => {
-      setIsUploading(false);
+
+    try {
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("description", formData.description);
+      data.append("file", file); // Must match multer.single('file')
+
+      const res = await fetch("http://localhost:8000/api/controlPoints", {
+        method: "POST",
+        body: data,
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+
       setUploadSuccess(true);
-      
-      // Reset form after a delay
-      setTimeout(() => {
-        setFormData({
-          title: '',
-          description: '',
-        });
-        setFile(null);
-        setFilePreview(null);
-        setUploadSuccess(false);
-      }, 3000);
-    }, 2000);
+      setFormData({ title: "", description: "" });
+      setFile(null);
+      setFilePreview(null);
+
+      setTimeout(() => setUploadSuccess(false), 3000);
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed – " + err.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -110,7 +119,7 @@ const DataUpload = () => {
       transition={{ duration: 0.3 }}
     >
       <div className="max-w-2xl mx-auto">
-        <motion.div 
+        <motion.div
           className="text-center mb-8"
           initial={{ y: -20 }}
           animate={{ y: 0 }}
@@ -120,12 +129,13 @@ const DataUpload = () => {
             Geodetic Control Points Raw Data Upload
           </h1>
           <p className="text-lg text-gray-600">
-            Upload geodetic control point data for processing and integration into the system.
+            Upload geodetic control point data for processing and integration
+            into the system.
           </p>
         </motion.div>
 
         {uploadSuccess ? (
-          <motion.div 
+          <motion.div
             className="bg-green-50 border border-green-200 rounded-lg p-6 text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -136,13 +146,16 @@ const DataUpload = () => {
                 <Check className="w-6 h-6 text-green-600" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-green-800 mb-2">Upload Successful!</h3>
+            <h3 className="text-lg font-medium text-green-800 mb-2">
+              Upload Successful!
+            </h3>
             <p className="text-green-600 mb-4">
-              Your geodetic control point data has been uploaded successfully and is now being processed.
+              Your geodetic control point data has been uploaded successfully
+              and is now being processed.
             </p>
           </motion.div>
         ) : (
-          <motion.form 
+          <motion.form
             onSubmit={handleSubmit}
             className="bg-white rounded-lg shadow-md p-6"
             initial={{ opacity: 0, y: 20 }}
@@ -151,7 +164,10 @@ const DataUpload = () => {
           >
             <div className="grid grid-cols-1 gap-6">
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Title *
                 </label>
                 <input
@@ -165,9 +181,12 @@ const DataUpload = () => {
                   placeholder="Enter a title for this data set"
                 />
               </div>
-              
+
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Description
                 </label>
                 <textarea
@@ -180,14 +199,16 @@ const DataUpload = () => {
                   placeholder="Provide a brief description of the data"
                 ></textarea>
               </div>
-              
+
               <div className="mt-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   File Upload *
                 </label>
-                <div 
+                <div
                   className={`border-2 border-dashed rounded-md p-6 text-center ${
-                    dragActive ? 'border-primary bg-primary/5' : 'border-gray-300'
+                    dragActive
+                      ? "border-primary bg-primary/5"
+                      : "border-gray-300"
                   }`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
@@ -198,8 +219,12 @@ const DataUpload = () => {
                       <div className="flex items-center">
                         <FileText className="w-8 h-8 text-primary mr-3" />
                         <div className="text-left">
-                          <p className="text-sm font-medium text-gray-900">{filePreview.name}</p>
-                          <p className="text-xs text-gray-500">{filePreview.size}</p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {filePreview.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {filePreview.size}
+                          </p>
                         </div>
                       </div>
                       <button
@@ -216,7 +241,10 @@ const DataUpload = () => {
                       <div className="mt-2">
                         <p className="text-sm text-gray-600">
                           Drag and drop your file here, or
-                          <label htmlFor="file-upload" className="ml-1 text-primary hover:text-primary-dark font-medium cursor-pointer">
+                          <label
+                            htmlFor="file-upload"
+                            className="ml-1 text-primary hover:text-primary-dark font-medium cursor-pointer"
+                          >
                             browse
                           </label>
                         </p>
@@ -236,7 +264,7 @@ const DataUpload = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="mt-4">
                 <button
                   type="submit"
@@ -245,9 +273,25 @@ const DataUpload = () => {
                 >
                   {isUploading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
                       Uploading...
                     </>
