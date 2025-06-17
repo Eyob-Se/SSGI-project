@@ -50,6 +50,13 @@ const login = async (req, res) => {
     const user = result[0];
     console.log(user, "user", result.password, "result");
 
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        error: "Your account is inactive. Please contact support.",
+      });
+    }
+
     const isPasswordMatched = await compare(password, user.password);
     console.log(isPasswordMatched, "ppppppppppppppppp");
 

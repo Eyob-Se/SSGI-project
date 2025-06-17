@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Circle as CircleStyle } from "ol/style"; // Required for point styling
 
-import { motion } from "framer-motion";
+import { color, motion } from "framer-motion";
 import "ol/ol.css";
 import Map from "ol/Map";
 import View from "ol/View";
@@ -28,6 +28,7 @@ import { Layers, Globe2, Square, MapPin, Search } from "lucide-react";
 // Import custom components
 import MapControls from "./MapControls";
 import LayerPanel from "./LayerPanel";
+import Legend from "./Legend";
 
 /**
  * Main map component that handles the OpenLayers map instance and controls
@@ -45,8 +46,27 @@ const MapComponent = () => {
 
   // Layer configuration state
   const [layers, setLayers] = useState([
-    { id: "zero", name: "Zero Order", visible: true, opacity: 1 },
-    { id: "first", name: "First Order", visible: true, opacity: 1 },
+    {
+      id: "zero",
+      name: "Zero Order",
+      visible: true,
+      opacity: 1,
+      color: "#ea580c",
+    },
+    {
+      id: "first",
+      name: "First Order",
+      visible: true,
+      opacity: 1,
+      color: "#312e81",
+    },
+    {
+      id: "ethiopiaBoundary",
+      name: "Boundary",
+      visible: true,
+      opacity: 1,
+      color: "#1a7e76",
+    },
   ]);
 
   // Initialize map on component mount
@@ -74,33 +94,11 @@ const MapComponent = () => {
         title: "Satellite",
       });
 
-      // Terrain layer
-      const terrainLayer = new TileLayer({
-        source: new XYZ({
-          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}",
-          maxZoom: 19,
-        }),
-        visible: selectedBasemap === "terrain",
-        zIndex: 0,
-        title: "Terrain",
-      });
-
-      // Streets layer
-      const streetsLayer = new TileLayer({
-        source: new XYZ({
-          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-          maxZoom: 19,
-        }),
-        visible: selectedBasemap === "streets",
-        zIndex: 0,
-        title: "Streets",
-      });
-
       // Style for road sign points
       const roadSignStyle = new Style({
         image: new CircleStyle({
           radius: 6,
-          fill: new Fill({ color: "#2ecc71" }),
+          fill: new Fill({ color: "#ea580c" }),
           stroke: new Stroke({ color: "#ffffff", width: 1.5 }),
         }),
       });
@@ -122,7 +120,7 @@ const MapComponent = () => {
       const roadSignStyle2 = new Style({
         image: new CircleStyle({
           radius: 6,
-          fill: new Fill({ color: "blue" }),
+          fill: new Fill({ color: "#312e81" }),
           stroke: new Stroke({ color: "#ffffff", width: 1.5 }),
         }),
       });
@@ -154,19 +152,15 @@ const MapComponent = () => {
       // Ethiopia boundary vector layer
       const ethiopiaBoundary = new VectorLayer({
         source: new VectorSource({
-          url: "https://raw.githubusercontent.com/datasets/geo-boundaries-world-110m/master/countries.geojson",
+          url: "http://localhost:8000/api/geo_eth",
           format: new GeoJSON(),
         }),
-        style: function (feature) {
-          // Only style Ethiopia's boundary
-          if (feature.get("iso_a3") === "ETH") {
-            return ethiopiaStyle;
-          }
-          return null;
-        },
+        style: ethiopiaStyle,
+        visible: true,
         zIndex: 1,
-        title: "Ethiopia",
+        title: "Ethiopia Boundary",
       });
+      layerRefs.current["ethiopiaBoundary"] = ethiopiaBoundary;
 
       // Initialize OpenLayers map
       const map = new Map({
@@ -174,15 +168,13 @@ const MapComponent = () => {
         layers: [
           osmLayer,
           satelliteLayer,
-          terrainLayer,
-          streetsLayer,
           ethiopiaBoundary,
           zero_order,
           first_order,
         ],
         view: new View({
           center: ethiopiaCenter,
-          zoom: 6.5,
+          zoom: 6.7,
           maxZoom: 19,
           minZoom: 4,
         }),
@@ -348,6 +340,11 @@ const MapComponent = () => {
           onClose={() => setShowLayerPanel(false)}
         />
       </motion.div>
+
+      {/* Legend Component */}
+      <div className="absolute top-[16rem] font-[poppins] left-4 z-10">
+        <Legend layers={layers} />
+      </div>
     </div>
   );
 };

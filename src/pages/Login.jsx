@@ -45,10 +45,10 @@ const Login = () => {
         if (usertype === "superAdmin") {
           navigate("/users");
         } else if (usertype === "requestAdmin") {
-          navigate("/points");
+          navigate("/request-management");
         } else if (usertype === "dataAdmin") {
           navigate("/data-upload");
-        } else {
+        } else if (usertype === "Standard") {
           navigate("/point-details/:AA01");
         }
       } else {

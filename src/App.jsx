@@ -17,6 +17,7 @@ import PrivateRoute from "./components/PrivateRoute";
 
 // Import layout component
 import Layout from "./components/Layout";
+import StandardUsers from "./pages/standardUser";
 
 /**
  * Main App component that sets up routing and layout structure
@@ -49,6 +50,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["dataAdmin"]}>
                     <DataUpload />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="standard-users"
+                element={
+                  <PrivateRoute allowedRoles={["requestAdmin"]}>
+                    <StandardUsers />
                   </PrivateRoute>
                 }
               />

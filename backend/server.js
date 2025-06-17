@@ -3,9 +3,11 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import geoRoutes from "./routes/geo.js";
 import geo1Routes from "./routes/geo1.js";
+import geo_ethRoutes from "./routes/geo_eth.js"; // Import the geo_eth route
 import login from "./routes/login.js";
 import logout from "./routes/logout.js"; // Ensure you have this route
 import userRoutes from "./routes/users.js"; // Import user routes if needed
+import standuserRoutes from "./routes/standuser.js"; // Import standard user routes
 import controlPointsRouter from "./routes/controlPoints.js"; // Import control points route
 import sequelize from "./models/db.js"; // adjust path
 
@@ -25,7 +27,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/login", login);
 app.use("/api/geo", geoRoutes);
 app.use("/api/geo1", geo1Routes);
+app.use("/api/geo_eth", geo_ethRoutes); // Use the geo_eth route
 app.use("/api/users", userRoutes);
+app.use("/api/standuser", standuserRoutes); // Use standard user routes
 app.use("/api/logout", logout); // Add logout route
 app.use("/api/controlPoints", controlPointsRouter); // Add control points route
 

@@ -19,11 +19,26 @@ const Navbar = () => {
   ];
 
   if (user.isLoggedIn && user.usertype === "superAdmin") {
-    navLinks = [{ name: "", path: "" }];
+    navLinks = [{ name: "Dashboard", path: "/users" }];
   } else if (user.isLoggedIn && user.usertype === "dataAdmin") {
     navLinks = [
-      { name: "", path: "" },
+      { name: "Dashboard", path: "/data-upload" },
       // Add more student links here
+    ];
+  } else if (user.isLoggedIn && user.usertype === "requestAdmin") {
+    navLinks = [
+      {
+        name: "Dashboard",
+        path: "/request-management",
+      },
+      {
+        name: "Users",
+        path: "/standard-users",
+      },
+      {
+        name: "Payment",
+        path: "/payment-view",
+      },
     ];
   }
 

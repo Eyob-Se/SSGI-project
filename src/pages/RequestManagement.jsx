@@ -46,7 +46,7 @@ const RequestManagement = () => {
 
   return (
     <motion.div
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-[poppins]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -56,7 +56,7 @@ const RequestManagement = () => {
         Request Management
       </h1>
 
-      <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
+      <div className="bg-silver border-l-4 border-yellow-500 text-black p-4 mb-6">
         <h2 className="font-bold">Pending Requests</h2>
         <ul>
           {requests.map((request) => (
@@ -66,26 +66,10 @@ const RequestManagement = () => {
               </span>
               <button
                 onClick={() => handleViewRequest(request)}
-                className="text-blue-600 hover:underline"
+                className="text-white hover:bg-indigo-900 transition duration-300 ease-in bg-indigo-800 px-4 py-1 my-2 rounded"
               >
-                <Eye className="inline-block w-4 h-4" />
+                view
               </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <h2 className="font-bold mb-4">Payment Transactions</h2>
-        <ul>
-          {paymentTransactions.map((transaction) => (
-            <li
-              key={transaction.id}
-              className="flex justify-between items-center"
-            >
-              <span>
-                {transaction.amount} - {transaction.status}
-              </span>
             </li>
           ))}
         </ul>

@@ -61,26 +61,6 @@ const MapControls = ({ onLayersClick, selectedBasemap, onBasemapChange }) => {
           >
             <Image size={20} />
           </button>
-
-          <button
-            onClick={() => onBasemapChange("terrain")}
-            className={`w-10 h-10 flex items-center justify-center rounded-md ${
-              selectedBasemap === "terrain" ? "bg-indigo-900 text-white" : ""
-            }`}
-            title="Terrain"
-          >
-            <MapIcon size={20} className="opacity-70" />
-          </button>
-
-          <button
-            onClick={() => onBasemapChange("streets")}
-            className={`w-10 h-10 flex items-center justify-center rounded-md ${
-              selectedBasemap === "streets" ? "bg-indigo-900 text-white" : ""
-            }`}
-            title="Streets"
-          >
-            <MapIcon size={20} />
-          </button>
         </div>
       </div>
     </motion.div>
