@@ -29,7 +29,10 @@ const Users = sequelize.define(
       unique: true,
       validate: { isEmail: true },
     },
-
+    phone: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+    },
     // ─────────── auth / role ───────────
     password: {
       type: DataTypes.STRING(100),

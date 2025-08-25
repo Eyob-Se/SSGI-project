@@ -46,14 +46,14 @@ const Footer = () => {
                     About Us
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     to="/data-request"
                     className="text-gray-300 hover:text-white text-sm"
                   >
                     Data Request
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </div>
 

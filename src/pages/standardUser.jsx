@@ -160,12 +160,13 @@ const StandardUsers = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <button
+          {/*           <button
             onClick={handleAddUser}
             className="btn bg-blue-900 text-white flex items-center"
           >
             <Plus className="w-4 h-4 mr-2" /> Add New User
           </button>
+ */}{" "}
         </motion.div>
       </div>
 
@@ -357,12 +358,15 @@ const StandardUsers = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="input-field w-full"
+                      className={`input-field w-full ${
+                        currentUser ? "bg-gray-100 cursor-not-allowed" : ""
+                      }`}
                       required
+                      readOnly={!!currentUser}
                     />
                   </div>
                   {/* Password */}
-                  <div className="mb-4">
+                  {/*                   <div className="mb-4">
                     <label
                       htmlFor="password"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -379,6 +383,7 @@ const StandardUsers = () => {
                       required={!currentUser} // Require password only when adding a new user
                     />
                   </div>
+ */}{" "}
                   {/* usertype */}
                   <div className="mb-4">
                     <label

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X, User, LogOut } from "lucide-react";
@@ -10,20 +10,26 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useUser();
+  const [showDropdown, setShowDropdown] = useState(false);
+  useEffect(() => {
+    // Close dropdown whenever login status or user info changes
+    setShowDropdown(false);
+  }, [user]);
+  const toggleDropdown = () => setShowDropdown((prev) => !prev);
 
   // Dynamic links based on usertype
   let navLinks = [
     { name: "Home", path: "/" },
     { name: "About Us", path: "/about" },
-    { name: "Data Request", path: "/data-request" },
+    // { name: "Data Request", path: "/data-request" },
   ];
 
   if (user.isLoggedIn && user.usertype === "superAdmin") {
     navLinks = [{ name: "Dashboard", path: "/users" }];
   } else if (user.isLoggedIn && user.usertype === "dataAdmin") {
     navLinks = [
-      { name: "Dashboard", path: "/data-upload" },
-      // Add more student links here
+      { name: "Dashboard", path: "/upload-data" },
+      { name: "Raw Data", path: "/raw-data-view" },
     ];
   } else if (user.isLoggedIn && user.usertype === "requestAdmin") {
     navLinks = [
@@ -39,6 +45,11 @@ const Navbar = () => {
         name: "Payment",
         path: "/payment-view",
       },
+    ];
+  } else if (user.isLoggedIn && user.usertype === "Standard") {
+    navLinks = [
+      { name: "Dashboard", path: "/user-dashboard" },
+      { name: "Payment", path: "/payment-upload" },
     ];
   }
 
@@ -58,7 +69,7 @@ const Navbar = () => {
         console.log("Logout success:", result);
         logout();
         setIsOpen(false);
-        navigate("/");
+        navigate("/login");
       } else {
         console.error("Logout failed:", result?.message || response.statusText);
         alert("Logout failed: " + (result?.message || response.statusText));
@@ -106,13 +117,36 @@ const Navbar = () => {
             </div>
             <div className="ml-6">
               {user.isLoggedIn ? (
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-2 rounded-md text-sm font-medium border border-white/30 hover:bg-white/10 flex items-center"
-                >
-                  <LogOut className="w-4 h-4 mr-1" />
-                  Logout
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={toggleDropdown}
+                    className="flex items-center px-3 py-2 rounded-md text-sm font-medium border border-white/30 hover:bg-white/10"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    {user.fname || "profile"}
+                  </button>
+
+                  {showDropdown && (
+                    <div className="absolute right-0 mt-2 w-40 bg-white text-black rounded-md shadow-lg z-50">
+                      <Link
+                        to="profile"
+                        className="block px-4 py-2 text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setShowDropdown(false);
+                          setIsOpen(false);
+                        }}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <Link
                   to="/login"

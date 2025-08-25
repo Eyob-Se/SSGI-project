@@ -8,7 +8,16 @@ import login from "./routes/login.js";
 import logout from "./routes/logout.js"; // Ensure you have this route
 import userRoutes from "./routes/users.js"; // Import user routes if needed
 import standuserRoutes from "./routes/standuser.js"; // Import standard user routes
+import adminuserRoutes from "./routes/adminuser.js"; // Import admin user routes
 import controlPointsRouter from "./routes/controlPoints.js"; // Import control points route
+import dataRequestRouter from "./routes/dataRequest.js"; // Import data request route
+import sendEmailRoutes from "./routes/send-email.js"; // Import email sending route
+import paymentRoutes from "./routes/uploadPayment.js";
+import paymentsRoute from "./routes/payments.js";
+import userPointsRoute from "./routes/points.js"; // Import user points route
+import rawDataFilesRouter from "./routes/RawDataFiles.js"; // Import raw data files route
+import ProfileRoutes from "./routes/profile.js"; // Import profile route
+import authRoutes from "./routes/auth.js"; // Import auth routes if needed
 import sequelize from "./models/db.js"; // adjust path
 
 const app = express();
@@ -30,8 +39,18 @@ app.use("/api/geo1", geo1Routes);
 app.use("/api/geo_eth", geo_ethRoutes); // Use the geo_eth route
 app.use("/api/users", userRoutes);
 app.use("/api/standuser", standuserRoutes); // Use standard user routes
+app.use("/api/adminuser", adminuserRoutes); // Use admin user routes
 app.use("/api/logout", logout); // Add logout route
 app.use("/api/controlPoints", controlPointsRouter); // Add control points route
+app.use("/api/data-request", dataRequestRouter); // Add data request route
+app.use("/api/payments", paymentRoutes);
+app.use("/api/payment", paymentsRoute); // Use the payment routes
+app.use("/api/send-email", sendEmailRoutes);
+app.use("/api/user/", userPointsRoute); // Use the user points route
+app.use("/api/points", userPointsRoute); // Use the user points route
+app.use("/api/rawdata", rawDataFilesRouter); // Use the raw data files route
+app.use("/api/profile", ProfileRoutes); // Use the profile route
+app.use("/api", authRoutes); // Use auth routes
 
 async function startServer(port) {
   try {

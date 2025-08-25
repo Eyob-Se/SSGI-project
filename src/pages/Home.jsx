@@ -2,8 +2,11 @@ import React from "react";
 import { motion } from "framer-motion";
 import MapComponent from "../components/MapComponent";
 import { MapIcon, Map, Globe, Database, Award } from "lucide-react";
+import { use } from "react";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
+  const { t } = useTranslation();
   return (
     <>
       <motion.div

@@ -1,85 +1,82 @@
 import express from "express";
-import Users from "../models/userModel.js"; // Adjust path if needed
-import { Op } from "sequelize"; // Ensure you import Op
+import Users from "../models/userModel.js";
+import { Op } from "sequelize";
+import bcrypt from "bcryptjs";
+import pgPool from "../models/pgPool.js"; // pg client for raw SQL queries
 
 const router = express.Router();
 
-// GET all users by specific user types
-router.get("/", async (req, res) => {
-  try {
-    // Define the user types you want to filter
-    const allowedUserTypes = ["superAdmin", "dataAdmin", "requestAdmin"];
-
-    const users = await Users.findAll({
-      where: {
-        usertype: {
-          [Op.in]: allowedUserTypes, // Filter by allowed user types
-        },
-      },
-    });
-
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET user by ID
-router.get("/:id", async (req, res) => {
-  try {
-    const user = await Users.findOne({ where: { id: req.params.id } });
-    if (!user) return res.status(404).json({ error: "User not found" });
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// POST create new user
+// Create user and link to data_request
 router.post("/", async (req, res) => {
   try {
-    const { fname, lname, password, usertype, email } = req.body;
+    const {
+      fname,
+      lname,
+      email,
+      phone,
+      password,
+      usertype,
+      isActive,
+      dataRequestId,
+    } = req.body;
+
+    if (!dataRequestId) {
+      return res.status(400).json({ error: "dataRequestId is required" });
+    }
+
+    // Hash the password securely
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create the new user using Sequelize
     const newUser = await Users.create({
       fname,
       lname,
-      password,
-      usertype,
       email,
+      phone,
+      password: hashedPassword,
+      usertype,
+      isActive,
     });
-    res.status(201).json(newUser);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
 
-// PUT update user by ID
-router.put("/:id", async (req, res) => {
-  try {
-    const { fname, lname, password, usertype, email, isActive } = req.body;
-    const [updated] = await Users.update(
-      { fname, lname, password, usertype, email, isActive },
-      { where: { id: req.params.id } }
+    const userId = newUser.id;
+
+    // Update the corresponding data_request to set status and link user_id
+    const updateResult = await pgPool.query(
+      `UPDATE data_requests
+       SET status = $1, user_id = $2
+       WHERE id = $3
+       RETURNING *`,
+      ["created", userId, dataRequestId]
     );
-    if (updated) {
-      const updatedUser = await Users.findOne({ where: { id: req.params.id } });
-      return res.json(updatedUser);
+
+    if (updateResult.rowCount === 0) {
+      console.warn("⚠️ No data_request updated. Possibly wrong ID.");
+      return res.status(404).json({ error: "Data request not found" });
     }
-    res.status(404).json({ error: "User not found" });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
 
-// DELETE (soft delete) user by ID
-router.delete("/:id", async (req, res) => {
-  try {
-    const user = await Users.findOne({ where: { id: req.params.id } });
-    if (!user) return res.status(404).json({ error: "User not found" });
+    const updatedRequest = updateResult.rows[0];
+    const pointId = updatedRequest.point_id;
 
-    await user.destroy(); // With paranoid: true, this is a soft delete
-    res.json({ message: "User deleted" });
+    // ✅ Insert into payments table using userId and pointId
+    await pgPool.query(
+      `INSERT INTO payments (user_id, point_id, created_at)
+   VALUES ($1, $2, NOW())`,
+      [userId, pointId]
+    );
+
+    return res.status(201).json({
+      message:
+        "User created, data request updated, and payment record inserted",
+      user: newUser,
+      updatedRequest,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(
+      "❌ Failed to create user, update data request, or insert payment:",
+      err
+    );
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

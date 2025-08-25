@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Plus, Edit, Trash2, Search, X } from "lucide-react";
 import bcrypt from "bcryptjs"; // Import bcrypt for hashing
 
-const API = "http://localhost:8000/api/users"; // <- change if needed
+const API = "http://localhost:8000/api/adminuser"; // <- change if needed
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -357,28 +357,34 @@ const UserManagement = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="input-field w-full"
+                      className={`input-field w-full ${
+                        currentUser ? "bg-gray-100 cursor-not-allowed" : ""
+                      }`}
                       required
+                      readOnly={!!currentUser} // Make email read-only if editing an existing user
                     />
                   </div>
                   {/* Password */}
-                  <div className="mb-4">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Password
-                    </label>
-                    <input
-                      id="password"
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="input-field w-full"
-                      required={!currentUser} // Require password only when adding a new user
-                    />
-                  </div>
+                  {!currentUser && (
+                    <div className="mb-4">
+                      <label
+                        htmlFor="password"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Password
+                      </label>
+                      <input
+                        id="password"
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="input-field w-full"
+                        required={!currentUser} // Require password only when adding a new user
+                      />
+                    </div>
+                  )}
+
                   {/* usertype */}
                   <div className="mb-4">
                     <label

@@ -7,8 +7,8 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const result = await sequelize.query(
-      `SELECT ogc_fid, id, objectid, sign_type, lat,
-      long, remark, ST_AsGeoJSON(wkb_geometry) as geometry FROM zero_order`,
+      `SELECT ogc_fid, no, id, easting, northing, zone,
+      location, region, ST_AsGeoJSON(ST_Transform(wkb_geometry, 4326)) as geometry FROM zero_order`,
       { type: QueryTypes.SELECT }
     );
 
@@ -19,12 +19,13 @@ router.get("/", async (req, res) => {
         geometry: JSON.parse(row.geometry), // geometry is a JSON string here
         properties: {
           ogc_fid: row.ogc_fid,
+          no: row.no,
           id: row.id,
-          objectid: row.objectid,
-          sign_type: row.sign_type,
-          lat: row.lat,
-          long: row.long,
-          remark: row.remark,
+          easting: row.easting,
+          northing: row.northing,
+          zone: row.zone,
+          location: row.location,
+          region: row.region,
         },
       })),
     };

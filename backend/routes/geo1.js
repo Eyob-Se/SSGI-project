@@ -1,14 +1,17 @@
 import { Router } from "express";
-const router = Router();
 import sequelize from "../models/db.js";
 import { QueryTypes } from "sequelize";
 
-// Serve first_order as GeoJSON
+const router = Router();
+
+// Serve first_order as GeoJSON with geometry transformed to EPSG:3857
 router.get("/", async (req, res) => {
   try {
     const result = await sequelize.query(
-      `SELECT ogc_fid, id, objectid, sign_type, lat,
-      long, remark, ST_AsGeoJSON(wkb_geometry) as geometry FROM first_order`,
+      `SELECT ogc_fid, id, station_id, town_name, region,
+              zone, obsrvation, easting__w, norting__w, field9,
+              ST_AsGeoJSON(ST_Transform(wkb_geometry, 4326)) as geometry
+       FROM first_order`,
       { type: QueryTypes.SELECT }
     );
 
@@ -16,15 +19,17 @@ router.get("/", async (req, res) => {
       type: "FeatureCollection",
       features: result.map((row) => ({
         type: "Feature",
-        geometry: JSON.parse(row.geometry), // geometry is now a GeoJSON string
+        geometry: JSON.parse(row.geometry), // Parsed GeoJSON geometry
         properties: {
           ogc_fid: row.ogc_fid,
           id: row.id,
-          objectid: row.objectid,
-          sign_type: row.sign_type,
-          lat: row.lat,
-          long: row.long,
-          remark: row.remark,
+          station_id: row.station_id,
+          town_name: row.town_name,
+          region: row.region,
+          zone: row.zone,
+          obsrvation: row.obsrvation,
+          easting__w: row.easting__w,
+          norting__w: row.norting__w,
         },
       })),
     };

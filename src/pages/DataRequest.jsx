@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Send, ArrowRight } from "lucide-react";
+import { Send } from "lucide-react";
+import axios from "axios";
 
 const DataRequest = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    fname: "",
+    lname: "",
     email: "",
     phone: "",
-    pointArea: "",
-    purpose: "",
-    message: "",
+    pointId: "",
+    reason: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,33 +18,34 @@ const DataRequest = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await axios.post("http://localhost:8000/api/data-request", formData);
+
       setIsSubmitting(false);
       setIsSubmitted(true);
 
-      // Reset form after submission
       setFormData({
-        name: "",
+        fname: "",
+        lname: "",
         email: "",
         phone: "",
-        pointArea: "",
-        purpose: "",
-        message: "",
+        pointId: "",
+        reason: "",
       });
 
-      // Reset success message after a delay
-      setTimeout(() => {
-        setIsSubmitted(false);
-      }, 5000);
-    }, 1500);
+      setTimeout(() => setIsSubmitted(false), 5000);
+    } catch (error) {
+      setIsSubmitting(false);
+      alert("Failed to submit the request. Please try again.");
+      console.error(error);
+    }
   };
 
   return (
@@ -90,7 +92,7 @@ const DataRequest = () => {
                     strokeLinejoin="round"
                     strokeWidth="2"
                     d="M5 13l4 4L19 7"
-                  ></path>
+                  />
                 </svg>
               </div>
             </div>
@@ -122,13 +124,32 @@ const DataRequest = () => {
                   htmlFor="name"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Full Name *
+                  First Name *
                 </label>
                 <input
                   type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
+                  id="fname"
+                  name="fname" // attribute changed
+                  value={formData.fname}
+                  onChange={handleChange}
+                  required
+                  className="input-field w-full"
+                  placeholder="Enter your full name"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Last Name *
+                </label>
+                <input
+                  type="text"
+                  id="lname"
+                  name="lname" // attribute changed
+                  value={formData.lname}
                   onChange={handleChange}
                   required
                   className="input-field w-full"
@@ -146,7 +167,7 @@ const DataRequest = () => {
                 <input
                   type="email"
                   id="email"
-                  name="email"
+                  name="email" // attribute changed
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -165,7 +186,7 @@ const DataRequest = () => {
                 <input
                   type="tel"
                   id="phone"
-                  name="phone"
+                  name="phone" // attribute changed
                   value={formData.phone}
                   onChange={handleChange}
                   className="input-field w-full"
@@ -175,63 +196,40 @@ const DataRequest = () => {
 
               <div>
                 <label
-                  htmlFor="pointArea"
+                  htmlFor="pointId"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Point Area / Location *
+                  Point ID *
                 </label>
                 <input
                   type="text"
-                  id="pointArea"
-                  name="pointArea"
-                  value={formData.pointArea}
+                  id="pointId"
+                  name="pointId" // attribute changed
+                  value={formData.pointId}
                   onChange={handleChange}
                   required
                   className="input-field w-full"
-                  placeholder="Specify the area or region"
+                  placeholder="Enter the geodetic control point ID"
                 />
               </div>
 
               <div>
                 <label
-                  htmlFor="purpose"
+                  htmlFor="reason"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Purpose of Request *
-                </label>
-                <select
-                  id="purpose"
-                  name="purpose"
-                  value={formData.purpose}
-                  onChange={handleChange}
-                  required
-                  className="input-field w-full"
-                >
-                  <option value="">Select a purpose</option>
-                  <option value="survey">Land Surveying</option>
-                  <option value="construction">Construction</option>
-                  <option value="research">Research</option>
-                  <option value="education">Education</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Additional Information
+                  Reason for Request *
                 </label>
                 <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
+                  id="reason"
+                  name="reason" // attribute changed
+                  value={formData.reason}
                   onChange={handleChange}
                   rows="4"
+                  required
                   className="input-field w-full"
-                  placeholder="Provide any additional details about your request"
-                ></textarea>
+                  placeholder="Explain why you need this data"
+                />
               </div>
 
               <div className="mt-2">
@@ -255,12 +253,12 @@ const DataRequest = () => {
                           r="10"
                           stroke="currentColor"
                           strokeWidth="4"
-                        ></circle>
+                        />
                         <path
                           className="opacity-75"
                           fill="currentColor"
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
+                        />
                       </svg>
                       Processing...
                     </>

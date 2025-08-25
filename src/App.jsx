@@ -12,12 +12,19 @@ import UserManagement from "./pages/UserManagement";
 import PointDetails from "./pages/PointDetails";
 import DataUpload from "./pages/DataUpload";
 import RequestManagement from "./pages/RequestManagement";
+import UserDashboard from "./pages/userDashboard";
+import Rawdatadashboard from "./pages/RawDataDashboard";
 import { UserProvider } from "./context/UserContext";
 import PrivateRoute from "./components/PrivateRoute";
 
 // Import layout component
 import Layout from "./components/Layout";
 import StandardUsers from "./pages/standardUser";
+import Payment from "./pages/PaymentUpload";
+import PaymentVerification from "./pages/PaymentVerification";
+import ProfilePage from "./pages/ProfilePage";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 /**
  * Main App component that sets up routing and layout structure
@@ -44,12 +51,35 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route path="point-details/:id" element={<PointDetails />} />
               <Route
-                path="data-upload"
+                path="/points/:pointId"
+                element={
+                  <PrivateRoute allowedRoles={["Standard"]}>
+                    <PointDetails />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="user-dashboard"
+                element={
+                  <PrivateRoute allowedRoles={["Standard"]}>
+                    <UserDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="upload-data"
                 element={
                   <PrivateRoute allowedRoles={["dataAdmin"]}>
                     <DataUpload />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="raw-data-view"
+                element={
+                  <PrivateRoute allowedRoles={["dataAdmin"]}>
+                    <Rawdatadashboard />
                   </PrivateRoute>
                 }
               />
@@ -62,8 +92,42 @@ function App() {
                 }
               />
               <Route
+                path="payment-upload"
+                element={
+                  <PrivateRoute allowedRoles={["Standard"]}>
+                    <Payment />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="request-management"
-                element={<RequestManagement />}
+                element={
+                  <PrivateRoute allowedRoles={["requestAdmin"]}>
+                    <RequestManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="profile"
+                element={
+                  <PrivateRoute>
+                    <ProfilePage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="payment-view"
+                element={
+                  <PrivateRoute allowedRoles={["requestAdmin"]}>
+                    <PaymentVerification />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route
+                path="/reset-password/:token"
+                element={<ResetPassword />}
               />
             </Route>
           </Routes>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, LogIn } from "lucide-react";
 import { useUser } from "../context/UserContext"; // Import context
@@ -31,25 +32,33 @@ const Login = () => {
           password: credentials.password,
         }),
       });
+
       const data = await response.json();
       setIsLoading(false);
 
       if (response.ok && data.success) {
-        // Save user info in context
-        const token = data.token;
-        const usertype = data.user.role || data.user.usertype;
+        // ✅ Destructure token and user
+        const { token, user } = data;
 
-        login({ ...data.user, usertype, token }); // Store all user info in context
+        login({
+          token,
+          id: user.id,
+          fname: user.fname,
+          lname: user.lname,
+          email: user.email,
+          usertype: user.role || user.usertype,
+        });
 
-        // Redirect based on usertype
+        // ✅ Redirect
+        const usertype = user.role || user.usertype;
         if (usertype === "superAdmin") {
           navigate("/users");
         } else if (usertype === "requestAdmin") {
           navigate("/request-management");
         } else if (usertype === "dataAdmin") {
-          navigate("/data-upload");
+          navigate("/upload-data");
         } else if (usertype === "Standard") {
-          navigate("/point-details/:AA01");
+          navigate("/user-dashboard");
         }
       } else {
         setErrorMessage(data.error || "Invalid Credentials");
@@ -60,8 +69,6 @@ const Login = () => {
       setErrorMessage("An error occurred. Please try again.");
     }
   };
-
-  // ... rest remains unchanged ...
 
   return (
     <motion.div
@@ -164,9 +171,12 @@ const Login = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="text-blue-800 hover:text-blue-900">
+                <Link
+                  to="/forgot-password"
+                  className="text-blue-800 hover:text-blue-900"
+                >
                   Forgot password?
-                </a>
+                </Link>
               </div>
             </div>
 

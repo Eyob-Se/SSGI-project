@@ -1,5 +1,6 @@
-// middlewares/authMiddleware.js
-import { verify } from "jsonwebtoken";
+// authjwt.js
+import jwt from "jsonwebtoken";
+const { verify } = jwt;
 
 // Authentication Middleware
 const authenticateUser = (req, res, next) => {
@@ -20,11 +21,11 @@ const authenticateUser = (req, res, next) => {
     }
 
     // 2. Verify token
-    const decoded = verify(token, process.env.JWT_SECRET);
+    const decoded = verify(token, "pppppppp");
 
     // 3. Attach user to request
     req.user = {
-      id: decoded.sub,
+      id: decoded.id,
       role: decoded.role,
     };
 

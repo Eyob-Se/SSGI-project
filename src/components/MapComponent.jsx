@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Circle as CircleStyle } from "ol/style"; // Required for point styling
-
-import { color, motion } from "framer-motion";
+import { Circle as CircleStyle } from "ol/style";
+import { motion } from "framer-motion";
 import "ol/ol.css";
 import Map from "ol/Map";
 import View from "ol/View";
@@ -14,37 +13,25 @@ import { fromLonLat } from "ol/proj";
 import { Fill, Stroke, Style } from "ol/style";
 import GeoJSON from "ol/format/GeoJSON";
 import { defaults as defaultControls } from "ol/control";
-import {
-  ZoomToExtent,
-  ScaleLine,
-  MousePosition,
-  ZoomSlider,
-  FullScreen,
-} from "ol/control";
+import { ScaleLine, MousePosition, FullScreen } from "ol/control";
 import { createStringXY } from "ol/coordinate";
 import Overlay from "ol/Overlay";
-import { Layers, Globe2, Square, MapPin, Search } from "lucide-react";
-
-// Import custom components
 import MapControls from "./MapControls";
 import LayerPanel from "./LayerPanel";
 import Legend from "./Legend";
+import DataRequestModal from "./DataRequestModal"; // import modal
 
-/**
- * Main map component that handles the OpenLayers map instance and controls
- * Includes layer management, measurement tools, and map navigation
- */
 const MapComponent = () => {
-  // Refs and state management
-  const mapRef = useRef(); // Reference to the map container div
-  const mapInstance = useRef(null); // Reference to the OpenLayers map instance
+  const mapRef = useRef();
+  const mapInstance = useRef(null);
   const layerRefs = useRef({});
-  const popupRef = useRef(); // Reference to the popup element for hover info
+  const popupRef = useRef();
+  const popupOverlayRef = useRef(null); // Keep a ref for popup overlay
   const [showLayerPanel, setShowLayerPanel] = useState(false);
-  const [showMeasurementTools, setShowMeasurementTools] = useState(false);
   const [selectedBasemap, setSelectedBasemap] = useState("osm");
+  const [showDataModal, setShowDataModal] = useState(false);
+  const [selectedPointId, setSelectedPointId] = useState("");
 
-  // Layer configuration state
   const [layers, setLayers] = useState([
     {
       id: "zero",
@@ -69,13 +56,10 @@ const MapComponent = () => {
     },
   ]);
 
-  // Initialize map on component mount
   useEffect(() => {
     if (!mapInstance.current) {
-      // Set center coordinates to Addis Ababa, Ethiopia
       const ethiopiaCenter = fromLonLat([38.7578, 9.0222]);
 
-      // Create base layers
       const osmLayer = new TileLayer({
         source: new OSM(),
         visible: selectedBasemap === "osm",
@@ -83,7 +67,6 @@ const MapComponent = () => {
         title: "OSM",
       });
 
-      // Satellite imagery layer
       const satelliteLayer = new TileLayer({
         source: new XYZ({
           url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
@@ -94,7 +77,6 @@ const MapComponent = () => {
         title: "Satellite",
       });
 
-      // Style for road sign points
       const roadSignStyle = new Style({
         image: new CircleStyle({
           radius: 6,
@@ -103,7 +85,6 @@ const MapComponent = () => {
         }),
       });
 
-      // Road signs vector layer
       const zero_order = new VectorLayer({
         source: new VectorSource({
           url: "http://localhost:8000/api/geo",
@@ -116,7 +97,6 @@ const MapComponent = () => {
       });
       layerRefs.current["zero"] = zero_order;
 
-      // Style for road sign points
       const roadSignStyle2 = new Style({
         image: new CircleStyle({
           radius: 6,
@@ -125,7 +105,6 @@ const MapComponent = () => {
         }),
       });
 
-      // Road signs vector layer
       const first_order = new VectorLayer({
         source: new VectorSource({
           url: "http://localhost:8000/api/geo1",
@@ -138,18 +117,11 @@ const MapComponent = () => {
       });
       layerRefs.current["first"] = first_order;
 
-      // Style for Ethiopia boundary
       const ethiopiaStyle = new Style({
-        fill: new Fill({
-          color: "rgba(26, 126, 118, 0.1)",
-        }),
-        stroke: new Stroke({
-          color: "#1a7e76",
-          width: 2,
-        }),
+        fill: new Fill({ color: "rgba(26, 126, 118, 0.1)" }),
+        stroke: new Stroke({ color: "#1a7e76", width: 2 }),
       });
 
-      // Ethiopia boundary vector layer
       const ethiopiaBoundary = new VectorLayer({
         source: new VectorSource({
           url: "http://localhost:8000/api/geo_eth",
@@ -162,7 +134,6 @@ const MapComponent = () => {
       });
       layerRefs.current["ethiopiaBoundary"] = ethiopiaBoundary;
 
-      // Initialize OpenLayers map
       const map = new Map({
         target: mapRef.current,
         layers: [
@@ -178,21 +149,19 @@ const MapComponent = () => {
           maxZoom: 19,
           minZoom: 4,
         }),
-        // Add default controls and custom controls
         controls: defaultControls().extend([
           new ScaleLine(),
-          new MousePosition({
-            coordinateFormat: createStringXY(4),
-            projection: "EPSG:4326",
-            className: "custom-mouse-position",
-          }),
+          // new MousePosition({
+          //   coordinateFormat: createStringXY(4),
+          //   projection: "EPSG:4326",
+          //   className: "custom-mouse-position",
+          // }),
           new FullScreen(),
         ]),
       });
 
       mapInstance.current = map;
 
-      // Add this after mapInstance.current = map;
       const popupOverlay = new Overlay({
         element: popupRef.current,
         positioning: "bottom-center",
@@ -200,47 +169,45 @@ const MapComponent = () => {
         offset: [0, -12],
       });
       map.addOverlay(popupOverlay);
+      popupOverlayRef.current = popupOverlay; // save ref for later use
 
-      // Pointer move event for showing popup
+      // Pointer move: show popup only on Point features, hide otherwise
       map.on("pointermove", (event) => {
         const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
-        if (feature) {
-          const geometry = feature.getGeometry();
-          const geomType = geometry.getType();
-          if (geomType === "Point") {
-            mapRef.current.style.cursor = "pointer";
-            const coordinates = event.coordinate;
+        if (feature && feature.getGeometry().getType() === "Point") {
+          mapRef.current.style.cursor = "pointer";
+          const coordinates = event.coordinate;
+          const pointId = feature.get("id");
+          const popupContent = `
+  <div class="bg-white p-3 shadow-lg rounded-xl border border-gray-300 text-sm max-w-sm w-64 transition-opacity duration-300">
+    <p class="text-gray-900 font-bold text-base mb-1">&#128752; Point ID: <span class="text-indigo-700">${
+      pointId || "Unknown"
+    }</span></p>
+    <p class="text-gray-600 italic text-xs">Click if you want to request this data</p>
+  </div>
+`;
 
-            const long = feature.get("long"); // GeoJSON property
-            const lat = feature.get("lat") || "No description available"; // GeoJSON property
-            if (long || lat) {
-              const popupContent = `
-            <div class="bg-white p-2 shadow-md rounded-lg border text-sm max-w-xs transition-opacity duration-300">
-              ${
-                long
-                  ? `<p class="text-gray-800">lat: ${long}</p>`
-                  : "longitude not available"
-              }
-              ${
-                lat
-                  ? `<p class="text-gray-800">long: ${lat}</p>`
-                  : "latitude not available"
-              }
-            </div>
-          `;
-              popupRef.current.innerHTML = popupContent;
-              popupOverlay.setPosition(coordinates);
-              popupRef.current.style.display = "block";
-            }
-          } else {
-            mapRef.current.style.cursor = ""; // Reset to default
-            popupRef.current.style.display = "none";
-          }
+          popupRef.current.innerHTML = popupContent;
+          popupOverlay.setPosition(coordinates);
+          popupRef.current.style.display = "block";
+        } else {
+          mapRef.current.style.cursor = "";
+          popupRef.current.style.display = "none";
+          popupOverlay.setPosition(undefined);
+        }
+      });
+
+      // Single click: open modal only for Point features
+      map.on("singleclick", (event) => {
+        const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f);
+        if (feature && feature.getGeometry().getType() === "Point") {
+          const pointId = feature.get("id") || "Unknown ID";
+          setSelectedPointId(pointId);
+          setShowDataModal(true);
         }
       });
     }
 
-    // Cleanup function to destroy map on unmount
     return () => {
       if (mapInstance.current) {
         mapInstance.current.setTarget(undefined);
@@ -249,27 +216,18 @@ const MapComponent = () => {
     };
   }, []);
 
-  // Update basemap when selection changes
   useEffect(() => {
     if (mapInstance.current) {
       const layers = mapInstance.current.getLayers().getArray();
       layers.forEach((layer) => {
         if (layer instanceof TileLayer) {
           const title = layer.get("title");
-          if (
-            title === "OSM" ||
-            title === "Satellite" ||
-            title === "Terrain" ||
-            title === "Streets"
-          ) {
-            layer.setVisible(title.toLowerCase() === selectedBasemap);
-          }
+          layer.setVisible(title.toLowerCase() === selectedBasemap);
         }
       });
     }
   }, [selectedBasemap]);
 
-  // Update layer visibility on checkbox toggle
   useEffect(() => {
     layers.forEach((layer) => {
       const olLayer = layerRefs.current[layer.id];
@@ -280,17 +238,14 @@ const MapComponent = () => {
     });
   }, [layers]);
 
-  // Toggle handlers for panels
   const toggleLayerPanel = () => {
     setShowLayerPanel(!showLayerPanel);
-    if (showMeasurementTools) setShowMeasurementTools(false);
   };
 
-  // Handler for changing basemap
   const changeBasemap = (basemap) => {
     setSelectedBasemap(basemap);
   };
-  // Handler for checkbox or opacity slider
+
   const handleLayerChange = (layerId, property, value) => {
     setLayers((prev) =>
       prev.map((layer) =>
@@ -301,29 +256,19 @@ const MapComponent = () => {
 
   return (
     <div className="relative h-full w-full">
-      {/* Map container */}
       <div ref={mapRef} className="map"></div>
-      {/* Popup for hover */}
       <div
         ref={popupRef}
         className="absolute z-50 pointer-events-none"
         style={{ display: "none" }}
       ></div>
 
-      {/* Map Controls */}
       <MapControls
         onLayersClick={toggleLayerPanel}
         selectedBasemap={selectedBasemap}
         onBasemapChange={changeBasemap}
       />
 
-      {/* Mouse position display */}
-      {/*    <div
-        id="mouse-position"
-        className="absolute bottom-0 right-0 bg-white/80 px-2 py-1 text-sm rounded-tl-md border-t border-l border-gray-300"
-      ></div> */}
-
-      {/* Layer Panel */}
       <motion.div
         className="absolute top-4 right-4 bg-white rounded-lg shadow-lg z-10 max-w-xs w-full"
         initial={{ opacity: 0, x: 20 }}
@@ -341,10 +286,16 @@ const MapComponent = () => {
         />
       </motion.div>
 
-      {/* Legend Component */}
       <div className="absolute top-[16rem] font-[poppins] left-4 z-10">
         <Legend layers={layers} />
       </div>
+
+      {/* Modal */}
+      <DataRequestModal
+        show={showDataModal}
+        onClose={() => setShowDataModal(false)}
+        pointId={selectedPointId}
+      />
     </div>
   );
 };
